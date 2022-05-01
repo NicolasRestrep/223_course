@@ -2,7 +2,7 @@
 title: "Data Documentation"
 author: "Nicolas Restrepo"
 output: 
-  html_document:
+  pdf_document:
     keep_md: true
 ---
 
@@ -20,19 +20,22 @@ The package contains three datasets:
 
 
 ```r
+# Load the packages
 library(unvotes)
 library(tidyverse)
 
+# Eagle eye view of the data
 glimpse(un_votes)
 ```
 
 ```
 ## Rows: 869,937
 ## Columns: 4
-## $ rcid         <dbl> 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, …
-## $ country      <chr> "United States", "Canada", "Cuba", "Haiti", "Dominican Re…
-## $ country_code <chr> "US", "CA", "CU", "HT", "DO", "MX", "GT", "HN", "SV", "NI…
-## $ vote         <fct> yes, no, yes, yes, yes, yes, yes, yes, yes, yes, yes, yes…
+## $ rcid         <dbl> 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, ~
+## $ country      <chr> "United States", "Canada", "Cuba", "Haiti", "Dominican Re~
+## $ country_code <chr> "US", "CA", "CU", "HT", "DO", "MX", "GT", "HN", "SV", "NI~
+## $ vote         <fct> yes, no, yes, yes, yes, yes, yes, yes, yes, yes, yes, yes~
 ```
 
+2) `un_roll_calls`
 
