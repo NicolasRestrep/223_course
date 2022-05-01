@@ -68,7 +68,7 @@ If you are more into international relations and development, `corruptDF` contai
 glimpse(corruptDF)
 ```
 
-### NTC Tickets
+### NYC Tickets
 
 `ticketsDF` contains observations of the number of tickets written by NYC precincts each day between 2014 and 2015.
 
@@ -79,6 +79,8 @@ glimpse(ticketsDF)
 ## Malaria 
 
 If you are interested in public health, this could be of interest. In the folder, you will find some datasets compiled from the `malariaAtlas` package. There are three datasets here. The first contais the incidence of Malaria for each country each year. 
+
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2018/2018-11-13).
 
 ```{r}
 df <- read_csv("malaria_incidence.csv")
@@ -101,6 +103,8 @@ glimpse(df)
 
 If you are interested in Football, we have a a dataset of player stats in the NFL from 2000 to 2017. 
 
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2018/2018-08-28).
+
 ```{r}
 df <- read_csv("nfl_stats.csv")
 glimpse(df)
@@ -117,6 +121,9 @@ glimpse(df)
 
 Maybe you are interested in climate change. Then, the number of California fires across years, and the damaged they have caused, might be of interest. 
 
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2018/2018-08-21).
+
+
 ```{r}
 df <- read_csv("fires.csv")
 glimpse(df)
@@ -125,6 +132,8 @@ glimpse(df)
 ## TV & Movie Ratings 
 
 We also have a dataset that contains TV & movie ratings taken from IMDB. The dataset covers titles released between 2000 and 2019. 
+
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-01-08).
 
 ```{r}
 df <- read_csv("tv_ratings.csv")
@@ -135,8 +144,107 @@ glimpse(df)
 
 Here's a data about the people incarcerated at the county level from 1970 to 2015. This is a big dataset so it might take a while to load. 
 
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-01-22).
+
 ```{r}
 df <- read_csv("incarceration_trends.csv")
+glimpse(df)
+```
+
+## Grand Slams Timeline 
+
+If you like tennis, this could be interesting. Here's data about participation in different Grand Slams. Every observation is a player and we have information about how they did in the tournament. 
+
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-04-09).
+
+```{r}
+df <- read_csv("grand_slam_timeline.csv")
+
+glimpse(df)
+```
+
+## Emplyoment by Gender
+
+This is an interesting dataset about patterns of emplyoment, across gender, for different occupations. The dataset includes information about the type of occupational group and the share of employees who are either female or male. There is also information about the earnings for each group. 
+
+```{r}
+df <- read_csv("gender_employment.csv")
+
+glimpse(df)
+```
+
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-03-05).
+
+## Soccer Women's World Cup
+
+This one is close to my heart; it contains information about the outcomes of all World Cup games in the women's game. 
+
+You can see more information about this dataset [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-07-09).
+
+There is *free* play-to-play data for the last World Cup [here](https://github.com/statsbomb/StatsBombR), if you are interested in more detailed analysis. 
+
+```{r}
+df <- read_csv("wwc_outcomes.csv")
+glimpse(df)
+```
+
+## UFO Sightings
+
+Just a wild resource. More that 80,000 recorded UFO sightings including the length of the encounter and what shape the supposed flying object was. An incredible testament to human creativity. The dataset is big so I am not including it in the repo directly. Instead, I am going to show you how to load it directly from Github. 
+
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-06-25).
+
+```{r}
+ufo_sightings <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-25/ufo_sightings.csv")
+
+glimpse(ufo_sightings)
+```
+
+## Nobel Prize Winners 
+
+Here's a dataset that compiles all Nobel prize winners. It contains information about their discipline, alma mater, what the recognition was for, and much more. 
+
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-14).
+
+
+```{r}
+df <- read_csv("nobel_winners.csv")
+glimpse(df)
+```
+
+## Rap artists 
+
+In 2020, the BBC asked about 100 critics, artists, and music industry folks about their top 5 hip hop tracks. This dataset contains the aggregated results. 
+
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-04-14).
+
+```{r}
+df <- read_csv("rap_artists.csv")
+glimpse(df)
+```
+
+## The NCAA Women's Basketball Tournament 
+
+This dataset contains detailed information about how each of the teams that has qualified to the tournament since 1982 has done. 
+
+More information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-10-06).
+
+```{r}
+df <- read_csv("wncaa.csv")
+glimpse(df)
+```
+
+## Tour de France 
+
+Here's some cool data about the biggest cycling competition in the world. We have two datasets `tour_winners` and `tour_stages`. The former gives details about each tour overall winner. The latter gives information about each specific stage: its length, origin, destination, and winner. 
+
+You can find more information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-04-07)
+
+```{r}
+df <- read_csv("tour_winners.csv")
+glimpse(df)
+
+df <- read_csv("tour_stages.csv")
 glimpse(df)
 ```
 
