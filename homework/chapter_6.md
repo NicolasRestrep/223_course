@@ -77,9 +77,9 @@ Now, fit the model described above and save it as `parallel_model`. Using `tidy(
 Interpreting models with multiple categorical variables is not that much different than the examples presented in the book. Here, we have 8 major categories. Adding this explanatory variable is equivalent to adding 7 variables to the model, each of which records whether our occupation belongs to the given category. This is easier to see when written down as an equation. Our line of best fit here could be written as: 
 
 $$ \hat{y} = \beta_0 + \beta_1 \times \text{year} + \beta_2 \times \text{occ2} + \beta_3 \times \text{occ3}...+ \beta_8 \times \text{occ7} $$
-So each coefficient of our model is associated with a binary variable that is either 0 or 1 and that indicates membership in an occupation group with a 1. You can think about these coefficients as switches. Because an occupation only belongs to one category at any time, it has a 1 for one of those values and a zero on all other ones. Multiplying anything by 0 makes it 0 - the $\beta$s for the categories to which our occupation does not belong then get "turned off", being multiplied by 0. The only switch that stays "on" is the one that has a 1 - i.e. the category under which our occupation falls. 
+So each coefficient of our model is associated with a binary variable that is either 0 or 1 and that indicates membership in an occupation group with a 1. You can think about these coefficients as switches. Because an occupation only belongs to one category at any time, it has a 1 for one of those values and a zero on all other ones. Multiplying anything by 0 makes it 0 - the betas for the categories to which our occupation does not belong then get "turned off", being multiplied by 0. The only switch that stays "on" is the one that has a 1 - i.e. the category under which our occupation falls. 
 
-Let me give you an example. "Chief Executives" belong to the category "Management, Business, and Financial". Thus, this observation has a 0 for all other dummy variables for category membership and those $\beta$s will play no rule in estimating our value. Wait, but in your model output there's no coefficient for "Management, Business, and Financial". That's because that's our reference category; it is baked into $\beta_0$, the intercept. This is also why I said that adding a categorical variable of 8 categories implies adding 7 coefficients. You get the extra one for free because that's your reference category. The $\beta$s then will tell you how much categories differ from your reference group. 
+Let me give you an example. "Chief Executives" belong to the category "Management, Business, and Financial". Thus, this observation has a 0 for all other dummy variables for category membership and those betas will play no rule in estimating our value. Wait, but in your model output there's no coefficient for "Management, Business, and Financial". That's because that's our reference category; it is baked into beta 0, the intercept. This is also why I said that adding a categorical variable of 8 categories implies adding 7 coefficients. You get the extra one for free because that's your reference category. The betas then will tell you how much categories differ from your reference group. 
 
 Okay, that was a lot. Now you do some interpretation. Using the coefficients from your model, calculate the wage percentage of male income for Sales and Office occupations on 2015. 
 
@@ -95,12 +95,12 @@ Let's check if this assumption is warranted. Using the code from the introductor
 
 Let's fit another model that includes an interaction between `major_category` and `year`. This will allow the slopes to differ across major categories. Again, use `tidy()` to get the summary of the results. 
 
-Let's think a bit about what this model says with an equation. We are doubling our coefficients: we have $\beta$s for 7 of 8 categories and $\beta$s for their respective interaction. Our equation would look something like this: 
+Let's think a bit about what this model says with an equation. We are doubling our coefficients: we have betas for 7 of 8 categories and betas for their respective interaction. Our equation would look something like this: 
 
 
 $$ \hat{y} = \beta_0 + \beta_1 \times \text{year} + \beta_2 \times \text{occ2} + \beta_3 \times \text{occ3}...+ \beta_8 \times \text{occ7}  + \beta_9  \times \text{occ2} \times \text{year} + \beta_{10} \times \text{occ3} \times \text{year}... \beta_{16} \times \text{occ7} \times \text{year}$$
 
-What does this mean? Occupation 2 in our case is "Computer, Engineering, and Science". For this occupation, then, only four $\beta$s are "switched on": $\beta_0$, $\beta_1$, $\beta_2$, and $\beta_9$. If we want to calculate our estimate for the "Computer, Engineering, and Science", for 2016, we would do the following: 
+What does this mean? Occupation 2 in our case is "Computer, Engineering, and Science". For this occupation, then, only four betas are "switched on": beta 0, beta 1, beta 2, and beta 9. If we want to calculate our estimate for the "Computer, Engineering, and Science", for 2016, we would do the following: 
 
 $$ \hat{y} = \beta_0 + \beta_1 \times 2016 + \beta_2  + \beta_9 \times 2016$$
 
