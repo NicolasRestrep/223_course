@@ -104,11 +104,83 @@ What does this mean? Occupation 2 in our case is "Computer, Engineering, and Sci
 
 $$ \hat{y} = \beta_0 + \beta_1 \times 2016 + \beta_2  + \beta_9 \times 2016$$
 
-So tell me what the estimate would be for "Computer, Engineering, and Science" for 2016. What about the same estimate but for "Service"? What do you notice? 
+So tell me what the estimate would be for "Computer, Engineering, and Science" for 2016. What about the same estimate but for "Service"? Do you notice any differences? 
 
 ## Question 4 
 
-Given that we have the power to add interactions to models - i.e. to have slopes vary across categories -, why would we choose to build a model that assumes parallel trends? 
+Given that we have the ability to add interactions to models - i.e. to have slopes vary across categories -, why would we choose to build a model that assumes parallel trends? 
+
+## Question 5 
+
+Let's now think about a model that includes two continuous variables as explanatory variables. Here, we are still interested in predicting how `wage_percent_of_male` has changed across years. Let's start simple: build a model where `wage_percent_of_male` is the outcome variable and `year` is the explanatory variable and save it as `simple_fit`. Then, use `tidy()` to look at the model output. Briefly, describe the results. 
+
+Let's add the other variable in there. We want a model that takes into account the variable `percent_female`. This variable records what percentage of the workforce of a given occupation is made up of women. The thinking behind this addition is that the proportion of women in an industry might affect how much the gender paygap has changed across the last few years. 
+
+Before we build the model we want to explore the relationship between these variables. Like in the chapter, use `select()` and `cor()` to find the correlations between these three variables. Because we have some missing values, you want to give `cor()` the argument `use = "complete.obs"`. 
+
+
+```r
+gender_employment %>% 
+  select(year, wage_percent_of_male, percent_female) %>% 
+  cor(use = "complete.obs")
+```
+
+```
+##                             year wage_percent_of_male percent_female
+## year                 1.000000000           0.02403895    0.004998286
+## wage_percent_of_male 0.024038950           1.00000000    0.111464461
+## percent_female       0.004998286           0.11146446    1.000000000
+```
+
+Describe the relationships between the variables. 
+
+What we want to to know, however, is the relationship between year and the paygap **conditional** on the proportion of women who work in an occupation. This is where the model described above comes handy. Build that model and save it as `multiple_fit`. Then, use `tidy()` to summarize the results. Describe the results in your own words. Is this what you would have expected? 
+
+## Question 6 
+
+Here, we will practice some model comparison and I will also introduce you to another useful tool from the `broom` package. 
+
+First, let's review the discussion about R squared. Briefly tell me, in your own words, what R squared is. 
+
+Okay, let's now compare the R squared for `simple_fit` and `multiple_fit`. To do this we are going to use `glance()` from the `broom` package. Run `glance()` on `simple_fit`. This should give you a lot of information, including the R squared. It turns out that you can save that output doing something like this. 
+
+
+```r
+simple_glanced <- glance(simple_fit)
+```
+
+And then you can access the R squared, the same way you would access a column from a dataframe, with the `$` sign. 
+
+
+```r
+simple_glanced$r.squared
+```
+
+Do this for both models and compare the R squared. What can you conclude from this?
+
+## A warning sign
+
+Now, I want to tell you a cautionary tale about R squared. While a useful metric, R squared has one big weakness: it improves when you add any variable to your model, regardless of how non-sensical it is. This is because R squared just takes into account the amount of variance explained and even random noise will be able to account for some variation. Let's see this in action. I am going to create a vector of random values the same size as our dataframe. 
+
+
+```r
+random_numbers <- rnorm(n = nrow(gender_employment), 
+                        mean = 0, 
+                        sd = 4)
+```
+
+Now, I will add this column and put it into our model: 
+
+
+```r
+gender_employment$random_noise <- random_numbers
+
+# New model 
+random_fit <- lm(wage_percent_of_male ~ year + percent_female + random_noise, data = gender_employment)
+```
+
+Examine the R squared for yourself and consider the implications of this little exercise! 
+
 
 
 
