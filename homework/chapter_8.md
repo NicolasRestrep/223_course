@@ -125,8 +125,32 @@ What do you notice? Are these results similar than those you got above? Do they 
 
 ## Question 6
 
-Now, I have a bit of a weird question. Read about how this dataset was collected [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-04-14). 
+Okay, let's go back to my spiritual home: the soccer World Cup. I have a dataset of around 300 penalties shot at the competition throughout its history. I want you to use bootstrapping to tell me what is the proportions of penalties scored. 
 
-How confident are you that this list reflects what the general population would say their favorite rap songs are? 
+Let's read in the data. 
 
-Having answered that, tell me: how confident are you that rap peaked in 1999? 
+
+```r
+penalties <- read_csv("../Data/WorldCupShootouts.csv")
+penalties <- penalties %>% 
+  drop_na()
+```
+
+This is the true proportion of penalties scored. 
+
+
+```r
+mean(penalties$Goal)
+```
+
+```
+## [1] 0.6989247
+```
+
+Modify the function and code above so that you can calculate the proportion of goals scored for 500 samples of 50 penalties. 
+
+Calculate the 95% confidence interval of your sampled proportions. 
+
+How confident are you that the probability of scoring a penalty kick in the World Cup is around 70%? 
+
+
