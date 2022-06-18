@@ -130,3 +130,45 @@ Calculate the standard deviation of your samples collected using a size of 25 an
 ## Question 5 
 
 Now, repeat the same steps above to find the proportion of women who have been awarded the Nobel prize. Draw samples of 100 scientists at a time and plot your distribution of proportions. You will have to change our function above so that it groups by another variable this time: gender. 
+
+## Question 6 
+
+Here's another challenge. Below, you'll find some code. It takes samples from a uniform distribution with boundaries 0 and 1. This just means that at any point all values between 0 and 1 are equally likely to be drawn. Then, it computes the mean of the sample. It does this for 200 samples and, lastly, it plots the histogram of the sample means. Explain to me why this is an illustration of the **Central Limit Theorem**. 
+
+
+```r
+# Calculate the means for sample size of 100 
+means_rd_100 <- c()
+for ( i in 1:200) {
+means_rd_100[i] <- mean(runif(n = 100, 
+                              min = 0, 
+                              max = 1))
+}
+
+# Calculate the means for sample size of 1000
+means_rd_1000 <- c()
+for ( i in 1:200) {
+means_rd_1000[i] <- mean(runif(n = 1000, 
+                              min = 0, 
+                              max = 1))
+}
+
+sims_df <- tibble( 
+  values = c(means_rd_100, 
+             means_rd_1000), 
+  sample_size = rep(c(100, 
+                      1000), each = 200)
+  ) %>% 
+  mutate(sample_size = as.factor(sample_size))
+
+sims_df %>% 
+  ggplot(aes(x = values, fill = sample_size, color = sample_size)) +
+  geom_histogram(alpha = 0.5) +
+  labs(x = "Sample means", 
+       y = "", 
+       title = "Distributions of sample means")
+```
+
+![](chapter_7_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+
