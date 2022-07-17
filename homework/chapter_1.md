@@ -1,14 +1,5 @@
----
-title: "Chapter 1"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
 
-
+# Chapter 1 
 
 These are going to be some complementary exercises to get you even more comfortable as you get used to working with R and RStudio. 
 
