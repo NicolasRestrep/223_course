@@ -1,22 +1,12 @@
----
-title: "Chapter 8"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
-
+# Chapter 8 
 
 At this point you have the right to be mad at me. After going through chapter 8, you probably realized that I had you doing resampling in the complementary exercises for chapter 7. Plus, I made you do it so many times. Let's practice it one more time, but this time armed with the language we were taught in chapter 8. 
 
-Here, we are going to use a dataset that contains the results of a survey conducted where artists and folks in the music business listed their favorite rap tracks. For each track we have information about its release data, and what we are going to do is to examine what is the year of that shows up the most - i.e. we are going to try to find out the year when rap peaked. This is not a silly attempt to make a data analysis course more interesting or relatable, this is a real issue in the sociology of culture and consumption. We have evidence [that music sales are higher for old music](https://www.theatlantic.com/ideas/archive/2022/01/old-music-killing-new-music/621339/). Nostalgia is the name of the game. A lot of people really believe that old music was better and organizing their music-listening habits around this idea. So understanding where supposed "experts" place the peak of rap is important and interesting. 
+For the first example, we are going to use a dataset that contains the results of a survey conducted where artists and folks in the music business listed their favorite rap tracks. For each track we have information about its release data, and what we are going to do is to examine what is the year of release that shows up the most - i.e. we are going to try to find out the year when rap peaked. This is not (only) a silly attempt to make a data analysis course more interesting or relatable,; this is a real issue in the sociology of culture and consumption. We have evidence [that music sales are higher for old music](https://www.theatlantic.com/ideas/archive/2022/01/old-music-killing-new-music/621339/). Nostalgia is the name of the game. A lot of people really believe that old music was better and are organizing their music-listening habits around this idea. So understanding where supposed "experts" place the peak of rap is important and interesting. 
 
-We are also going to use a dataset that contains about 300 penalty kicks taken throughout the history of the soccer world cup. A penalty in soccer is a big deal. Folk wisdom is that is practically a goal. In reality, the chances of scoring a penalty is about 0.7 which is still huge given how low-scoring soccer is (and people who don't like soccer will remind you about how low-scoring is). We will examine the proportion of penalties that have been actually scored and the confidence we can have in our inference. 
+For the second example, we are  going to use a dataset that contains about 300 penalty kicks taken throughout the history of the soccer world cup. A penalty in soccer is a big deal. Folk wisdom is that is practically a goal. In reality, the chances of scoring a penalty is about 0.7 which is still huge given how low-scoring soccer is (and people who don't like soccer will remind you about how low-scoring it is). We will examine the proportion of penalties that have been actually scored and the confidence we can have in our inference. 
 
-Let's begin by importing the data. 
+Let's begin by importing the first dataset. 
 
 
 ```r
@@ -99,7 +89,7 @@ What denotes more confidence: a narrow or a wide confidence interval?
 
 ## Question 3
 
-Often, we are interested in a specific statistic. In this case, we want to look at the median year of our subsamples. Let's modify the function above so that it calculates that. 
+Often, we are interested in a specific statistic. In this case, we want to look at the median year of our sub-samples. Let's modify the function above so that it calculates that. 
 
 
 ```r
@@ -115,7 +105,7 @@ Now, you are on your own. Using a for loop (or your preferred method of iteratio
 
 ## Question 4
 
-The chapter teaches you a neat heuristic: that your 95% confidence interval can be calculated by taking the median (or mean) and adding 1.96 standard deviations (for the upper limit) and subtracting 1.96 standard deviations (for the lower limit). Using this, and *without* using the chapter's helper functions, calculate the 95% confidence interval of your sample medians from question 2. 
+The chapter teaches you a neat heuristic: that your 95% confidence interval can be calculated by taking the median (or mean) and adding 1.96 standard deviations (for the upper limit) and subtracting 1.96 standard deviations (for the lower limit). Using this, and *without* using the chapter's helper functions, calculate the 95% confidence interval of your sample medians from question 3. 
 
 Using the interpretation that the chapter gives you, tell me what that 95% confidence interval means.
 

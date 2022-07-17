@@ -1,18 +1,8 @@
----
-title: "Chapter 9"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
-
+# Chapter 9
 
 Here, we will reinforce some ideas from Chapter 9. This one is very important, not only because the content itself is important, but because you will see these ideas used and abused everywhere to support all kinds of silly arguments. A thorough understanding of these ideas will be a great BS detector when you are confronted with other people's data analyses. 
 
-We will be using soccer data from the English Premier League to examine whether home field advantage is a thing in this league. Do teams who play at home - with their own fans - win more on average? We will use your new hypothesis testing skills to examine this question. We will use data from all games of the legendary 2015/2016 season. Don't know why it's legendary? Look it up. It's worth it. 
+We will be using soccer data from the English Premier League to examine whether home field advantage is a thing in this league. Do teams who play at home - with their own fans - win more on average? We will use your new hypothesis testing skills to examine this question. We will use data from all games of the legendary 2015/2016 season. Don't know why it's legendary? Look it up. It's worth it. Best sports story of all time some say.  
 
 Let's begin by reading in the data and looking at it. 
 

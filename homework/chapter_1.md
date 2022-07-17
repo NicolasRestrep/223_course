@@ -54,7 +54,7 @@ Load all three packages in the order they were presented above. You should get m
 
 It is not wise to ignore these messages; reading them will often save you a lot of time. For instance, R is telling you that `igraph` is "masking" an object called `as_data_frame` from the `dplyr` package. What on earth does that mean?
 
-Well, it turns out that `igraph` called  `as_data_frame`. It takes a graph and turns it into a dataframe. Now, it just so happens that dplyr has a function with that exact name, which takes objects at turns them into a dataframe. 
+Well, it turns out that `igraph` has a function called  `as_data_frame`. It takes a graph and turns it into a dataframe. Now, it just so happens that dplyr has a function with that exact name, which takes objects at turns them into a dataframe. 
 
 Run the following code: 
 
@@ -90,7 +90,7 @@ glimpse(df)
 ## $ value <dbl> 1, 2, 3
 ```
 
-Why did this one work? You just learned that you can invoke a specific package function by passing the package name followd by two colons and the function's name. Using this format use the `n_distinct()` function in dplyr to count the number of elements in the following collection of numbers: 
+Why did this one work? You just learned that you can invoke a specific package function by passing the package name followed by two colons and the function's name. Using this format, use the `n_distinct()` function in dplyr to count the number of elements in the following collection of numbers: 
 
 
 ```r
@@ -110,7 +110,9 @@ The reason we also loaded the `causeact` package is because it includes some int
 This function gives you a ton of information. 
 
 How many rows does the dataset have?
+
 How many columns? 
+
 What type of variable is the `Home` column? What about `HomeScore`? 
 
 ## Question 5
@@ -150,7 +152,7 @@ What do these two columns represent?
 
 ## Question 6 
 
-To finish this exercises, let's review how to build our own dataframes. Let's say you have been collecting data on historical hockey goal scorers and you want to build a dataset about the top ten. You have three variables: 
+To finish these exercises, let's review how to build our own dataframes. Let's say you have been collecting data on historical hockey goal scorers and you want to build a dataset about the top ten. You have three variables: 
 
 - Name
 - Total goals

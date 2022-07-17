@@ -1,14 +1,4 @@
----
-title: "Chapter 5 - Modern Dive"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
-
+# Chapter 5
 
 We are getting into more complex topics, like how to fit and interpret models. In this section, we will use all the tools we have learned - from wrangling to visualization - to make sure we fit appropriate models and that we understand what these models are doing. Models can be powerful inferential tools but they can also be misleading (like anything). It is important that we know what is powering the machinery we are using so that we always know whether to trust the results we get. 
 
@@ -23,7 +13,7 @@ library(tidyverse)
 twitch_data <- read_csv("../Data/twitchdata-update.csv")
 ```
 
-The names of th variables here are a bit annoying. They are capitalized and have spaces which makes them awkward to work with in R. Let me show you a neat trick. First, install a package called `janitor` if you don't have it yet. Then, let's load it and clean the names. 
+The names of the variables here are a bit annoying. They are capitalized and have spaces which makes them awkward to work with in `R`. Let me show you a neat trick. First, install a package called `janitor` if you don't have it yet. Then, let's load it and clean the names. 
 
 
 ```r
@@ -66,16 +56,14 @@ twitch_data <- twitch_data %>%
 
 ## Question 2 
 
-Let's actually run a regression. Using `lm()` fit a model where you predict the logarithm of average viewers (`log_viewers`) using the logarithm of followes (`log_followers`). Save the results to an object called `fit1`.
+Let's actually run a regression. Using `lm()` fit a model where you predict the logarithm of average viewers (`log_viewers`) using the logarithm of followers (`log_followers`). Save the results to an object called `fit1`.
 
 I am going to show you another way of getting a summary of your model. First, let's install the `broom` package. After, run `tidy()` on your model object (`fit1`). 
-
-
-
 
 Before I have you describe your results I have to tell you that when you transform your variables, interpretation is a bit different. In the situation we are in - where your outcome and explanatory variables have been logged - the coefficients are interpreted as percentage increases. For example, let's say we have a coefficient of $0.4$. We would do the following: 
 
 $$ 1.1^{0.4} = 1.03886 $$
+
 And we would interpret our coefficient like this: 
 
 > A 10% increase in followers is associated with a 3.9% increase in the average number of viewers. 
@@ -109,7 +97,7 @@ glimpse(pred_data)
 ## $ .std.resid    <dbl> 1.3420109, 0.8227954, 0.5389316, -0.6251793, 0.5953620, …
 ```
 
-Look, it's our original data but also a bunch more information. The `.fitted` column includes our predictions given our line of best fit. `.resid` contans the residuals. Let's visualize our line of best fit: 
+Look, it's our original data but also a bunch more information. The `.fitted` column includes our predictions given our line of best fit. `.resid` contains the residuals. Let's visualize our line of best fit: 
 
 
 ```r
@@ -133,7 +121,7 @@ Do you think our model describes the relationship well?
 
 Now, you fit a plot where `log_followers` is in the x-axis and `.resid` is in the y-axis.
 
-What do you see? Are there any big residuals? DO they happen often in a particular range of our x-variable? If so, we would have a problem: our model would systematically fail to predict part of our data. 
+What do you see? Are there any big residuals? Do they happen often in a particular range of our x-variable? If so, we would have a problem: our model would systematically fail to predict part of our data. 
 
 ## Question 4 
 
@@ -157,6 +145,7 @@ twitch_data <- twitch_data %>%
 ```
 
 Now, fit your model. Your coefficients will tell you how many more (or fewer) average viewers are related to streaming in languages different than English. 
+
 Interpret the results. How is my prediction doing? 
 
 ## Question 6

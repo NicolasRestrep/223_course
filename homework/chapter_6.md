@@ -1,14 +1,4 @@
----
-title: "Chapter 6"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
-
+# Chapter 6
 
 In this set of supplementary exercises, we are going to practice - and expand on - some of the skills and ideas introduced on Chapter 6 of Modern Dive. To do this, we are going to be looking at a dataset that includes information about the employment conditions of women across different occupations. Here, we are going to explore how much women earn with respect to men in different occupations and how this might have changed in the last few years. 
 
@@ -59,6 +49,7 @@ gender_employment%>%
 ```
 
 ![](chapter_6_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 We don't see a lot of fluctuation: the trend is mostly flat albeit with a slight positive slope. What we want to explore is how this relationship varies across occupations. 
 
 ## Question 1 
@@ -77,9 +68,10 @@ Now, fit the model described above and save it as `parallel_model`. Using `tidy(
 Interpreting models with multiple categorical variables is not that much different than the examples presented in the book. Here, we have 8 major categories. Adding this explanatory variable is equivalent to adding 7 variables to the model, each of which records whether our occupation belongs to the given category. This is easier to see when written down as an equation. Our line of best fit here could be written as: 
 
 $$ \hat{y} = \beta_0 + \beta_1 \times \text{year} + \beta_2 \times \text{occ2} + \beta_3 \times \text{occ3}...+ \beta_8 \times \text{occ7} $$
-So each coefficient of our model is associated with a binary variable that is either 0 or 1 and that indicates membership in an occupation group with a 1. You can think about these coefficients as switches. Because an occupation only belongs to one category at any time, it has a 1 for one of those values and a zero on all other ones. Multiplying anything by 0 makes it 0 - the betas for the categories to which our occupation does not belong then get "turned off", being multiplied by 0. The only switch that stays "on" is the one that has a 1 - i.e. the category under which our occupation falls. 
 
-Let me give you an example. "Chief Executives" belong to the category "Management, Business, and Financial". Thus, this observation has a 0 for all other dummy variables for category membership and those betas will play no rule in estimating our value. Wait, but in your model output there's no coefficient for "Management, Business, and Financial". That's because that's our reference category; it is baked into beta 0, the intercept. This is also why I said that adding a categorical variable of 8 categories implies adding 7 coefficients. You get the extra one for free because that's your reference category. The betas then will tell you how much categories differ from your reference group. 
+So each coefficient of our model is associated with a binary variable that is either 0 or 1 and that indicates membership in an occupation group with a 1. You can think about these coefficients as switches; they are turned on when they are 1, they are turned off when they are 0. Because an occupation only belongs to one category at any time, it has a 1 for one of those values and a zero on all other ones. Multiplying anything by 0 makes it 0 - the betas for the categories to which our occupation does not belong then get turned off, being multiplied by 0. The only switch that stays on is the one that has a 1 - i.e. the category under which our occupation falls. 
+
+Let me give you an example. "Chief Executives" belongs to the category "Management, Business, and Financial". Thus, this observation has a 0 for all other dummy variables for category membership and those betas will play no role in estimating our value. Wait, but in your model output there's no coefficient for "Management, Business, and Financial". That's because that's our reference category; it is baked into beta 0, the intercept. This is also why I said that adding a categorical variable of 8 categories implies adding 7 coefficients. You get the extra one for free because that's your reference category. The betas then will tell you how much categories differ from your reference group. 
 
 Okay, that was a lot. Now you do some interpretation. Using the coefficients from your model, calculate the wage percentage of male income for Sales and Office occupations on 2015. 
 
@@ -87,7 +79,7 @@ Now calculate the wage percentage of male income for Service occupations on 2016
 
 ## Question 2 
 
-The model above assumes parallel trends. This means that we are saying telling the model to draw a line for each major category, and let the lines start at different points but make the slopes the same. The only thing that changes across major categories then is the intercept of the lines. 
+The model above assumes parallel trends. This means that we are telling the model to draw a line for each major category, and let the lines start at different points but make the slopes the same. The only thing that changes across major categories then is the intercept of the lines. 
 
 Let's check if this assumption is warranted. Using the code from the introductory section, make a similar plot but facet it by major category so that lines vary across categories. What do you notice? Is the parallel trends assumption warranted? 
 
@@ -160,7 +152,7 @@ Do this for both models and compare the R squared. What can you conclude from th
 
 ## A warning sign
 
-Now, I want to tell you a cautionary tale about R squared. While a useful metric, R squared has one big weakness: it improves when you add any variable to your model, regardless of how non-sensical it is. This is because R squared just takes into account the amount of variance explained and even random noise will be able to account for some variation. Let's see this in action. I am going to create a vector of random values the same size as our dataframe. 
+Now, I want to tell you a cautionary tale about R squared. While a useful metric, R squared has one big weakness: it improves when you add any variable to your model, regardless of how nonsensical it is. This is because R squared just takes into account the amount of variance explained and even random noise will be able to account for some variation. Let's see this in action. I am going to create a vector of random values the same size as our dataframe. 
 
 
 ```r

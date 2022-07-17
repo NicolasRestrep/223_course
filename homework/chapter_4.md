@@ -1,14 +1,4 @@
----
-title: "Chapter 4"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
-
+# Chapter 4
 
 Chapter 4 is fairly comprehensive but let's do a couple more things to get more comfortable with reading in data and transforming it into a tidy format. 
 
@@ -36,14 +26,13 @@ This dataset is clearly not in a tidy format. Reshape it so that every row tells
 
 ## Question 3 
 
-Of course, there are many folks in each position and their salaries are vary widely. Let's look at quarterbacks for example. Filter your newly created dataset so that it only contains quarterbacks. Then, make a histogram where salary is in the x-axis. Then use `facet_wrap` to get the histogram for each `year`. 
+Of course, there are many folks in each position and their salaries vary widely. Let's look at quarterbacks for example. Filter your newly created dataset so that it only contains quarterbacks. Then, make a histogram where salary is in the x-axis. Then use `facet_wrap` to get the histogram for each `year`. 
 
 What patterns do you notice? 
 
 ## Question 4 
 
 Let's calculate the average salary for each position, each year. Create a new dataset that contains the average salary for each position each year. To do this, you will need the `group_by` and `summarize` combo. 
-
 
 
 > Hint: Beware of a couple of NAs in there 

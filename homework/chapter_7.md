@@ -1,20 +1,10 @@
----
-title: "Chapter 7"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
+# Chapter 7 
 
+Here, we are going to practice and reinforce some of the ideas that we encountered in chapter 7. Sampling is crucial for understanding any type of data analysis. When you are presented with brand new set of data, it is always useful to think: what groups or populations am I capturing in these data? To what groups or populations can I extrapolate insights I draw from these data? Do I have enough data? To answer these questions, it is essential to grasp sampling; to think about how features of a population might (or might not) make their way to our spreadsheets. 
 
+Say we are interested in finding out the proportion of science Nobel prizes that have been awarded to people born in the US. We could easily Google this, the information is available. But imagine that for some reason we are only able to access portions of the data - i.e. samples. How would we go about finding this proportion and how confident would we be in our findings?
 
-Here, we are going to practice and reinforce some of the ideas that we encountered in chapter 5. Sampling is crucial for understanding any type of data analysis. When you are presented with brand new set of data, it is always useful to think: what groups or populations am I capturing in these data? Can I To what groups or populations can I extrapolate insights I draw from these data? Do I have enough data? To answer these questions, it is essential to grasp sampling; to think about how features of a population might (or might not) make their way to our spreadsheets. 
-
-Say we are interested in finding out the proportion of science Nobel prizes that have been awarded to people born in the US. We could easily Google this, the information is available. But imagine that for some reason we are only able to access portions of the data - i.e. samples. How would we go about finding this proportion and how confident would we be in our findings. 
-
-Let's begin by loading in a data frame containing all nobel prize winners. 
+Let's begin by loading in a data frame containing all Nobel prize winners. 
 
 
 ```r
@@ -24,7 +14,7 @@ theme_set(theme_minimal())
 nobel_winners <- read_csv("../Data/nobel_winners.csv")
 ```
 
-Given that we are only interested in scientific nobel prizes, let's get rid of the Nobel Peace prize. We will also create a column that indicates whether the recepient was born in the US. 
+Given that we are only interested in scientific Nobel prizes, let's get rid of the Nobel Peace prize. We will also create a column that indicates whether the receipient was born in the US. 
 
 
 ```r
@@ -111,7 +101,7 @@ return_sample <- function( ___ = 25,
 }
 ```
 
-Test the function a couple of times on the console a couple of times to make sure it is doing what it is supposed to do. 
+Test the function a couple of times on the console to make sure it is doing what it is supposed to do. 
 
 Using your function, take 50 samples of 25 winners. Plot your results. 
 

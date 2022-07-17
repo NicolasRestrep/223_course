@@ -1,16 +1,6 @@
----
-title: "Chapter 2"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
+# Chapter 2 
 
-
-
-These are going to be some complementary exercises to hone some initial data visualization skills.
+These are going to be some complementary exercises to practice some initial data visualization skills.
 
 Let's begin by loading the data. We will be working with data about all Olympic Gold Medalists. 
 
@@ -96,11 +86,11 @@ us_medals <- gold_medalists %>%
 
 You have two columns now: one for year and one for the number of Gold Medals won that year. Plot this trajectory as a linegraph. 
 
-What was the counry's most succesful year? As a bonus, can you guess why the line is so wiggly (technical term) towards the end? 
+What was the country's most successful year? As a bonus, can you guess why the line is so wiggly (technical term) towards the end? 
 
 ## Question 4 
 
-Now, let's explore differences in the kind of athlete that has excelled at different events. Let's look at two hallmark events in the olympics: gymnastics and the 100 meter dash. I am going to make a dataset that only includes data about these events. 
+Now, let's explore differences in the kind of athlete that has excelled at different events. Let's look at two hallmark events in the Olympics: gymnastics and the 100 meter dash. I am going to make a dataset that only includes data about these events. 
 
 
 ```r
@@ -115,13 +105,13 @@ two_events <- gold_medalists %>%
 
 Filter the dataset I just created so that it only contains the gymnastics events. Now, make a histogram where age is in the x-axis. 
 
-Briefly descibe this distribution. 
+Briefly describe this distribution. 
 
-Now, try to see whether there are differences between female and male atheltes by using the `facet_wrap()` function. What athletes tend to be older? 
+Now, try to see whether there are differences between female and male athletes by using the `facet_wrap()` function. What athletes tend to be older? 
 
 ## Question 5
 
-Now, you're going to use boxplots to show me which one of the events above has taller athletes. Make a boxplot where the x-axis is event and the y axis is height. 
+Now, you're going to use boxplots to show me which one of the events above has taller athletes. Make a boxplot where the x-axis is event and the y-axis is height. 
 
 Briefly describe your results. 
 

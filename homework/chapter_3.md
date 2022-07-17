@@ -1,14 +1,4 @@
----
-title: "Chapter 3"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
-
+# Chapter 3 
 
 Again, we are going to go through a couple more exercises to reinforce your data wrangling skills. 
 
@@ -19,7 +9,7 @@ As usual, we will begin by loading the `tidyverse` (which is the collection of p
 library(tidyverse)
 ```
 
-Before, we dealt with olympic athletes but now we are going to get closer to the peak of human achievement: we are going to look at Mario Kart records. 
+Before, we dealt with Olympic athletes but now we are going to get closer to the peak of human achievement: we are going to look at Mario Kart records. 
 
 The data should be loaded from the the `Data` folder in our directory. 
 

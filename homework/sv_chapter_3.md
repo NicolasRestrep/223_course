@@ -1,13 +1,4 @@
----
-title: "Chapters 1-3"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
+# Chapters 1-3 - Data Visualization
 
 
 Here, we are going to go over some key ideas from chapters 1 through 3 from Healy's Data Visualization. 
@@ -75,9 +66,9 @@ Before we move forward, we want to know what these variables capture. Run `?corr
 
 ## Question 3 
 
-Here, we are intersted  in the relationship between the HDI and CPI. 
+Here, we are interwsted  in the relationship between the HDI and CPI. 
 
-Begin by making a scatterplot that shows the relationship between these two variables. Describe the relationship that you see. 
+Begin by making a scatter plot that shows the relationship between these two variables. Describe the relationship that you see. 
 
 ## Question 4 
 

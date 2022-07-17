@@ -1,22 +1,10 @@
----
-title: "Chapter 6 - Data Visualization"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
-
-
+# Chapter 6 - Data Visualization 
 
 In this homework, we will review some of the ideas and tools that Healy presents in chapter 6 of Data Visualization. This is a chapter packed full of information. Some of the techniques - like marginal plots - might have flown over your head. And that's fine because we haven't reviewed logistic regression. But I will ask you to trust that these tools are useful to have at least in the back of your head, and that - as your data analysis journey continues - you will come back to this chapter recurrently. Here, we will focus on some of the key skills that resonate with the content we have reviewed so far. 
 
 For this homework, we are you to be using player data from the 2019 NBA season. I was able to download and curate this data using [David Schoch's code](https://www.r-bloggers.com/2018/03/analyzing-nba-player-data-i-getting-data/). You should really check out his blog. 
 
 As always, we will begin by reading in the data and looking at its structure. 
-
 
 ```r
 library(tidyverse)
@@ -99,7 +87,7 @@ glimpse(nba_data)
 ## $ vorp           <dbl> 1.7, 0.1, -0.2, 3.6, 1.5, 0.1, 0.3, -0.2, 0.2, 0.3, -0.…
 ```
 
-We have a ton of information. Each row represents a player and we have detailed statistics of their performance across the season. I will come clean and admit that I know very little about Basketball analytics. If you are an expert then the exercises might seem rather silly. If so, I'm looking to hear what you can do with this wealth of data. Given my inexperience, I will focus only on a few variables. The main variable I am interested in is `per`: player efficiency rating. This is basically a measure of how much a player contributes in proportion to the time it spends on the court. What I am interested in is what aspects of the game - like 2 pointers or 3 pointers - lead to higher efficiency ratings. One can think that a player who is better at 2 pointers might contribute more, given that these shots are more common. However, 3 pointers are, well, worth more. We will examine this. 
+We have a ton of information. Each row represents a player and we have detailed statistics of their performance across the season. I will come clean and admit that I know very little about Basketball analytics. If you are an expert then the exercises might seem rather silly. If so, I'm looking forward to hear what you can do with this wealth of data. Given my inexperience, I will focus only on a few variables. The main variable I am interested in is `per`: player efficiency rating. This is basically a measure of how much a player contributes in proportion to the time it spends on the court. What I am interested in is what aspects of the game - like 2 pointers or 3 pointers - lead to higher efficiency ratings. One can think that a player who is better at 2 pointers might contribute more, given that these shots are more common. However, 3 pointers are, well, worth more. We will examine this. 
 
 ## Question 1 
 
@@ -117,7 +105,7 @@ There are really extreme outliers. Especially, there are two weird players: one 
 
 ## Question 3 
 
-Following the book, show several fits at once. Just like in the chapter, show a Cubic Spline, a LOESS curve, and an OLS line alongside the data. Do you notice any differences? What happens when you `filter()` the data so that you only consider players who have played more than 300 minutes (roughly the 25th quantile of the data)?
+Following the book, show several fits at once. Just like in the chapter, show a Cubic Spline, a LOESS curve, and an OLS line alongside the data. Do you notice any differences? What happens when you `filter()` the data so that you only consider players who have played more than 300 minutes (roughly the 25th percentile of the data)?
 
 ## Question 4
 
@@ -128,6 +116,7 @@ By now, you should realize that `mp` plays a big role. If you have played little
 ## Question 5
 
 Let's do the three fitted lines with these data now, just like you did in question 3. What do you notice here? 
+
 ## Question 6
 
 Okay, let's build a model and practice how to plot predicted values from that model. Here, I am interested in a model that predicts a player's efficiency rating - `per` - using the percentage of 2-pointers (`x2p_percent_pm`) and accounting for position (`pos`) and minutes played (`mp`). Fit that model and call it `mod1`.  

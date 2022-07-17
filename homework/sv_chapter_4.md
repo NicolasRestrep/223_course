@@ -1,14 +1,4 @@
----
-title: "Chapter 4"
-author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
-    theme: united
-    keep_md: true
----
-
-
+# Chapter 4 - Data Visualization
 
 Here, we are going to practice and reinforce some of the key ideas from chapter 4. 
 
@@ -39,7 +29,7 @@ glimpse(tv_ratings)
 ## $ genres       <chr> "Drama,Mystery,Sci-Fi", "Adventure,Drama,Mystery", "Adven…
 ```
 
-We notice that each row is a season-title pair. THen we get the average rating for that season of that show, and the correspoding genre. 
+We notice that each row is a season-title pair. Then we get the average rating for that season of that show, and the corresponding genre. 
 
 The first thing that we are going to look at is how rating develops across seasons, for different genres. To do this, we need shows that have lasted a while. The following bit of code counts how many seasons each show has and then keeps those shows that have had 5 seasons or more. 
 
@@ -57,9 +47,6 @@ tv_long <- tv_long %>%
 
 Use `tv_long` to make a line plot to trace how average ratings evolve across seasons. Remember to use the group aesthetic so that each line represents one show. 
 
-
-
-
 It should look fairly messy. Can you draw any conclusions from it?
 
 ## Question 2
@@ -73,8 +60,6 @@ What shows tend to last longer? Do ratings change much across seasons? Can you i
 Let's look at the `genres` that show up in the best rated shows. 
 
 First, filter the original data set - `tv_ratings` - so that it only includes rows where the average rating is higher or equal than 9. 
-
-
 
 Make a barplot where the x-axis is `genre`. 
 
