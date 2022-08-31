@@ -4,6 +4,7 @@ author: "Professor Vaisey"
 format: 
   html:
     self-contained: true
+    keep-md: true
 editor: visual
 ---
 

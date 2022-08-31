@@ -248,3 +248,14 @@ df <- read_csv("tour_stages.csv")
 glimpse(df)
 ```
 
+## FBREF 2020-21 Football (Soccer) Data
+
+This is 2020-21 data on individual players from Europe's top 5 leagues. From the FBREF site. I first found the data [here](https://tonyelhabr.netlify.app/posts/dimensionality-reduction-and-clustering/). Because it is in Excel format, you will have to do an additional step it get it in. Here's some example code:
+
+```{r}
+df <- 'FBRef 2020-21 T5 League Data.xlsx' |>  
+  readxl::read_excel() |>  
+  janitor::clean_names()
+glimpse(df)
+```
+
