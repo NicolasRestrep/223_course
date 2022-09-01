@@ -1,9 +1,0 @@
-install.packages(c("causact",
-"dplyr",
-"igraph"))
-install.packages(c("causact", "dplyr", "igraph"))
-?install.packages
-install.packages("causact")
-install.packages("dplyr")
-install.packages("igraph")
-library(lme4)
