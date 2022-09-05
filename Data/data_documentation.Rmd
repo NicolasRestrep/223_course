@@ -1,11 +1,13 @@
 ---
 title: "Data Documentation"
 author: "Nicolas Restrepo"
-output: 
-  html_document: 
-    toc: true
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
     theme: united
-    keep_md: true
+    keep_md: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -248,6 +250,7 @@ df <- read_csv("tour_stages.csv")
 glimpse(df)
 ```
 
+<<<<<<< HEAD
 ## FBREF 2020-21 Football (Soccer) Data
 
 This is 2020-21 data on individual players from Europe's top 5 leagues. From the FBREF site. I first found the data [here](https://tonyelhabr.netlify.app/posts/dimensionality-reduction-and-clustering/). Because it is in Excel format, you will have to do an additional step it get it in. Here's some example code:
@@ -259,3 +262,94 @@ df <- 'FBRef 2020-21 T5 League Data.xlsx' |>
 glimpse(df)
 ```
 
+=======
+
+## Government Spending on Kids 
+
+Here's one for the folks interested in public policy. Here's information about government spending on policy directed at children. The dataset includes the specific policy on which the money was spent, the raw amount spent, the amount adjusted for inflation, and the amount spent per child. 
+
+More information [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-09-15)
+
+```{r}
+df <- read_csv("kids.csv")
+glimpse(df)
+```
+
+
+## Video Game Trends 
+
+This dataset documents the amount of players that video games every month, and it records how much these numbers have changed across months. 
+
+For more information, you can click [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2021/2021-03-16). 
+
+```{r}
+df <- read_csv("video_games.csv")
+glimpse(df)
+```
+
+## Mario Kart Records
+
+This one is fun: it is a dataset that records Mario Kart records. It gives you information about the racer, the track, the speed, and how long the record held. There are two complementary datasets here. One is called `world_records` and it holds information about the records themselves. `drivers` gives more information about the players that set the records. 
+
+You can go [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2021/2021-05-25) for more information. 
+
+```{r}
+df <- read_csv("world_records.csv")
+glimpse(df)
+df <- read_csv("drivers.csv")
+glimpse(df)
+```
+
+## Olympic Medals
+
+Here's a comprehensive dataset of athletes who have won medals in the Olympic games. Given that the dataset is quite heavy, I will show you how to load it directly. 
+
+For more information go [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2021/2021-07-27).
+
+```{r}
+# Read in data 
+df  <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
+glimpse(df)
+```
+
+## College Sports Budgets 
+
+This might be one might peak your interest. It is a detailed dataset about how colleges spend their sports budgets, and how much they get back in revenue. This one is also quite big so we will read it directly. 
+
+[Here's](https://github.com/rfordatascience/tidytuesday/blob/master/data/2022/2022-03-29/readme.md) more information about the data.  
+
+```{r}
+df  <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-29/sports.csv')
+glimpse(df)
+```
+
+## Twitch Data 
+
+This is an interesting dataset. Streaming is now one of the preferred forms of entertainment and Twitch has become the natural home for this genre. This dataset was uploaded to kaggle and can be found [here](https://www.kaggle.com/datasets/aayushmishra1512/twitchdata). It contains a lot of information about Twitch's top streamers: 
+
+```{r}
+twitch_data <- read_csv("../Data/twitchdata-update.csv")
+glimpse(twitch_data)
+```
+
+## World Cup Shootouts 
+
+This is one of my favorite datasets. It contains data for every penalty kick in a World Cup shootout from 1982 to 2018. It was built and uploaded to kaggle by Pablo L. Landeros. You can find it [here](https://www.kaggle.com/datasets/pablollanderos33/world-cup-penalty-shootouts). 
+
+```{r}
+penalties <- read_csv("../Data/WorldCupShootouts.csv")
+glimpse(penalties)
+```
+
+## English Premier League 
+
+This is a dataset containing the results for the 2015/2016 English Premier League season. It was a truly unexpected season and you should look it up. I got the dataset from an excellent tutorial by  Milad Kharratzadeh. You can find it [here](https://github.com/milkha/EPL). This is what the data looks like: 
+
+```{r}
+pl_data <- read_csv("../Data/premier_league.csv")
+
+glimpse(pl_data)
+```
+
+Each row represents a match. We have the home team, away team, the score (in terms of difference), and the categorical result. That last one is `aw` when the away team wins, `d` when there's a draw, and `hw` when the home team takes the points. 
+>>>>>>> 3bff384 (My data)
