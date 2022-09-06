@@ -1,0 +1,272 @@
+---
+title: "MD2 Demo"
+author: "Stephen Vaisey"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+If you need to install the `worldfootballR` package (which you probably do), don't forget to install it.
+
+```{r, eval=FALSE}
+install.packages("worldfootballR")
+```
+
+Now I'm going to load the packages I need for this session.
+
+```{r}
+library(tidyverse)
+library(worldfootballR)
+```
+
+We can use the `fb_match_results()` function from `worldfootballR` to get match results from [fbref.com](https://fbref.com/en/). That's the data we're going to use for this exercise. 
+
+FYI, don't worry about this if you find it confusing, but if you're looking at the `.Rmd` file, you'll see that I've added the option `cache=TRUE` to the code chunk. This "caches" the result of the chunk and saves it locally. I did this so I don't re-download the data every single time from the website. RStudio will stash this information in the project folder and use it as needed. If it can't find the information in the cache, or if I modify the chunk at all, it will download it again.
+
+```{r, cache=TRUE}
+# get premier league match results for three seasons
+d <- fb_match_results(
+  country = "ENG",               # England
+  gender = "M",                  # men's football ("soccer")
+  season_end_year = 2020:2022,   # asking for three seasons: 19-20, 20-21, and 21-22
+  tier = "1st"                   # 1st division (Premier League)
+)
+```
+
+Now that we have created the data, we can `glimpse()` it to get a sense of what kind of information it contains.
+
+```{r}
+glimpse(d)
+```
+
+The dataset, `d`, has 1140 matches from three seasons and several variables associated with each match.
+
+For this exercise, we are going to use xG or "expected goals." [Here is a video](https://www.youtube.com/watch?v=zSaeaFcm1SY) explaining how xG works and why it's so important to soccer analytics.
+
+In _ModernDive_ chapter 2, the authors talk about the "5NG" or "five named graphs." I am going to demonstrate each one here using the data we have downloaded.
+
+## Scatterplot
+
+Let's plot home xG against away xG. We will use `geom_jitter()` instead of `geom_point()` to avoid overplotting. We can also add transparency to our points using `alpha`. Finally, I am going to add `theme_minimal()` to all my graphs because I think it looks better.
+
+```{r}
+## simplest version
+ggplot(d,
+       aes(x = Home_xG,
+           y = Away_xG)) +
+  geom_jitter(alpha = .2) +
+  theme_minimal()
+```
+
+## Line Graph
+
+Line graphs are usually used when you have a "running" variable (like a date or time) along the x-axis and a quantitative variable on the y-axis. The easiest way to do this is to plot something for just a single team (so there aren't multiple events on the same day.)
+
+Our first step will be to make a subset of the data that's just one team's home matches. We will use Liverpool. Don't worry too much about how to do this because you haven't learned it yet.
+
+```{r}
+lfc <- d |> 
+  filter(Home == "Liverpool")
+```
+
+This code has made a new data frame, `lfc`, which is just Liverpool's home matches across the three seasons. Again, don't worry too much about how I did this.
+
+Let's plot Liverpool's home xG against time and see if we see any patterns.
+
+```{r}
+ggplot(lfc,
+       aes(x = Date,
+           y = Home_xG)) +
+  geom_line() +
+  theme_minimal()
+```
+
+This is very noisy! It's hard to tell visually if there are any patterns. One way to deal with this is to add a "smoother" -- a line that "smooths" out the trend. We can use `geom_smooth()` for this, which adds a new line based on locally-weighted least squares (don't worry about this!).
+
+```{r}
+ggplot(lfc,
+       aes(x = Date,
+           y = Home_xG)) +
+  geom_line() +
+  geom_smooth() +            # this is the new bit
+  theme_minimal()
+```
+
+By default, the smooth line is blue, a solid line, and has a gray ribbon around it that reflects statistical uncertainty. We can change all those if we want.
+
+```{r}
+ggplot(lfc,
+       aes(x = Date,
+           y = Home_xG)) +
+  geom_line() +
+  geom_smooth(se = FALSE,              # no "standard error" (uncertainty ribbon)
+              color = "red",           # color of line
+              linetype = "dashed") +   # style of line
+  theme_minimal()
+```
+
+It looks like Liverpool had a bit of a dip in offensive production toward the end of the 2020-21 season but recovered strongly the next season.
+
+
+## Histogram
+
+Unlike the two graphs above, this one just represents one quantitative variable. Let's go back to the full dataset, `d`, and look at the distribution of home xG.
+
+```{r}
+ggplot(d,
+       aes(x = Home_xG)) +
+  geom_histogram() +
+  theme_minimal()
+```
+
+This is a histogram but it's pretty ugly to be honest. By default, `geom_histogram()` just makes 30 equally-spaced bins and that may or may not make sense. We can do better.
+
+The main things we can control are where the first bin starts, how wide the bins are, and the visual demarcation between the bars.
+
+```{r}
+ggplot(d,
+       aes(x = Home_xG)) +
+  geom_histogram(boundary = 0,        # start the first bin at 0
+                 binwidth = .2,       # make the bins .2 (xG) units wide  
+                 color = "white") +   # make the bin borders white
+  theme_minimal()
+```
+
+This looks better. We can improve this even more by tweaking the x-axis.
+
+```{r}
+ggplot(d,
+       aes(x = Home_xG)) +
+  geom_histogram(boundary = 0,        
+                 binwidth = .2,         
+                 color = "white") +
+  scale_x_continuous(breaks = seq(from = 0,    # start labeling at 0
+                                  to = 6,      # stop at 6
+                                  by = .5),    # put a break every .5
+                     minor_breaks = NULL) +    # only lines we asked for
+  theme_minimal()
+```
+
+This makes the x-axis a bit easier to interpret. The most common home xG values are around 1.
+
+## Bar graph
+
+There are two good uses for bar graphs. The first one (not discussed in _ModernDive_) is when you have some data you would use for a histogram but you don't have to chop it up into bins because it already has low resolution. A good example of this is actual goals scored per game. It already comes in integers (0, 1, 2, etc.) so we don't need to "bin" it like we do with a histogram.
+
+Let's look at actual home goals (instead of "expected goals"). We use `geom_bar()` here instead of `geom_histogram()`.
+
+```{r}
+ggplot(d,
+       aes(x = HomeGoals)) +
+  geom_bar() +
+  scale_x_continuous(breaks = 0:9,
+                     minor_breaks = NULL) +
+  labs(title = "Home Goals Scored, EPL 2019-2022",  # title
+       x = "# of Goals",                            # x title
+       y = "# of Games") +                          # y title
+  theme_minimal()
+```
+
+The second use (covered in _ModernDive_) is when you have a non-quantitative variable you want to represent. Let's look at how many games are played on each day of the week.
+
+```{r}
+ggplot(d,
+       aes(x = Day)) +
+  geom_bar() +
+  theme_minimal()
+```
+
+The most obvious thing wrong with this is that the x-axis ordering makes zero sense! We can order the x-axis two reasonable ways: in time order (since days of the week do have an order) or in frequency order (most to least common). We're not ready for the second one yet but let's do the first one.
+
+```{r}
+ggplot(d,
+       aes(x = factor(
+         Day,
+         levels = c("Mon",
+                    "Tue",
+                    "Wed",
+                    "Thu",
+                    "Fri",
+                    "Sat",
+                    "Sun")
+       ))) +
+  geom_bar() +
+  theme_minimal()
+```
+
+This code looks a lot more complicated (and messy, tbh) but all we've done is wrap the `Day` variable in `factor()` and add levels so we get the order we want. I don't expect you to know how to do this without looking my code (or searching).
+
+Even though it gets the x-axis order right, it makes the x-axis title super ugly as a side effect. We can change it (and add other titles while we're at it).
+
+```{r}
+ggplot(d,
+       aes(x = factor(
+         Day,
+         levels = c("Mon",
+                    "Tue",
+                    "Wed",
+                    "Thu",
+                    "Fri",
+                    "Sat",
+                    "Sun")
+       ))) +
+  geom_bar() +
+  labs(x = "Day of the Week",
+       y = "# of Matches",
+       title = "Premier League Matches by Day of the Week, 2019-2022") +
+  theme_minimal()
+```
+
+All of the versions of the bar graph make it clear that Saturday is the most common day for English Premier League matches.
+
+## Boxplot
+
+The last graph we'll cover is the box plot. This is usually most useful when you have a continuous variable that you want to compare across levels of a categorical (discrete) variable.
+
+Let's look at an example. Most (all?) of the 2020-2021 season was played without any fans in the stadiums. Was the home xG for this season worse than for the surrounding seasons?
+
+Let's try looking at this question with a boxplot. Warning: this isn't going to work well the first time we try it!
+
+```{r}
+ggplot(d,
+       aes(x = Season_End_Year,
+           y = Home_xG)) +
+  geom_boxplot() +
+  theme_minimal()
+```
+
+The x-axis looks weird here because R "doesn't know" that we want separate box plots per season. This is because `Season_End_Year` isn't a factor or a character. Let's look:
+
+```{r}
+class(d$Season_End_Year)
+```
+
+If we want side-by-side plots of xG by season, we need to make `Season_End_Year` a factor variable. We can just wrap it in `factor()`, as you can see.
+
+```{r}
+ggplot(d,
+       aes(x = factor(Season_End_Year),
+           y = Home_xG)) +
+  geom_boxplot() +
+  theme_minimal()
+```
+
+This looks better. We could clean it up a bit. But we can see that the median (the thick black line in the middle of the box) is a little lower in 2021 (which is the 2020-21 season). So maybe no fans really did make a difference?
+
+One final thing: sometimes it's better to compare boxplots the other way. We can use `coord_flip()` to swap the x and y axes.
+
+```{r}
+ggplot(d,
+       aes(x = factor(Season_End_Year),
+           y = Home_xG)) +
+  geom_boxplot() +
+  coord_flip() +
+  theme_minimal()
+
+```
+
