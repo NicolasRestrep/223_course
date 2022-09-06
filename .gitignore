@@ -1,3 +1,8 @@
 .Rproj.user/
 .RHistory 
 .RData
+*_cache/
+/cache/
+
+# not sure if this is a good idea
+*_files
