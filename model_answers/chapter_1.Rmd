@@ -73,7 +73,7 @@ baseballData[1,]
 This is the first row of the `baseballData` dataset. It looks like it has information about a single game of baseball.
 
 ```{r}
-baseballData[,2:3]
+baseballData[,2:3] |> head()
 ```
 
 This function shows me two columns of the baseball data. The first is the acronym for the home team, the second is the acronym of the away team.
