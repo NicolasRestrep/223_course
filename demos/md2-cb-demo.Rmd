@@ -1,0 +1,73 @@
+---
+title: "MD2 CB Demo"
+author: "Stephen Vaisey"
+date: "2022-09-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load packages
+
+```{r}
+library(tidyverse)
+library(hoopR)
+```
+
+Load the data. I set `cache = TRUE` to keep from unnecessary redownloads.
+
+```{r, cache=TRUE}
+tb <- load_mbb_team_box()
+```
+
+Filter data so it's only Duke and only variables with `pct` in them. This will give me shooting accuracy data.
+
+```{r}
+duke <- tb |> 
+  filter(team_short_display_name == "Duke") |> 
+  select(game_date, contains("pct"))
+glimpse(duke)
+```
+
+From the `glimpse()` above, it looks like the numbers are stored as character variables. You can see this with the `<chr>` indicator. I will proces the variables so they become numeric. This is tricky so just copy along here.
+
+```{r}
+duke <- duke |> 
+  mutate(across(field_goal_pct:free_throw_pct,
+                ~ as.numeric(.x)))
+glimpse(duke)
+```
+
+OK looks good. Let's make some graphs.
+
+```{r}
+ggplot(duke,
+       aes(x = free_throw_pct)) +
+  geom_histogram()
+```
+
+The histogram produced by the code above is ugly. I am going to play with the settings to see if I can make something better.
+
+```{r}
+ggplot(duke,
+       aes(x = free_throw_pct)) +
+  geom_histogram(boundary = 40,
+                 binwidth = 5,
+                 color = "white") +
+  labs(title = "Duke Free Throw % by Game, 2021",
+       x = "Free Throw %",
+       y = "Number of Games")
+```
+
+
+```{r}
+ggplot(duke,
+       aes(x = game_date,
+           y = field_goal_pct)) +
+  geom_line() +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
