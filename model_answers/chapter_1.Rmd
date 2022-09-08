@@ -2,9 +2,7 @@
 title: "MD1 Model Answer"
 author: "Professor Vaisey"
 output: 
-  html_document: 
-    toc: true
-    theme: united
+  html_document:
     keep_md: true
 ---
 
