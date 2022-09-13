@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Install new package for college basketball data. (Don't forget `eval = FALSE` in the code chunk!)
+Install new package (h/t Andrew Weatherman) for college basketball data. (Don't forget `eval = FALSE` in the code chunk!)
 
 ```{r, eval=FALSE}
 install.packages("toRvik")
@@ -78,7 +78,9 @@ pg_acc |>                    # start with ACC player data
   count(player)              # count player appearances  
 ```
 
-This is great but it's not in the order we want. We can add the `arrange()` verb to the bottom of the pipeline to control this.
+Note that this is simply the number of rows in which each player appears in the dataset. Since each row is a game in which a player plays, the count is just the number of games a player played in.
+
+This is great but it's probably not in the order we want. We can add the `arrange()` verb to the bottom of the pipeline to control this.
 
 ```{r}
 pg_acc |>                    
@@ -96,7 +98,7 @@ pg_acc |>
   arrange(desc(n))                 
 ```
 
-Using `count()` is fine for a quick glance at frequencies but using `summarize()` gives us more control at the cost of being a bit trickier to use at first. 
+Using `count()` is fine for a quick glance at frequencies. But using `summarize()` gives us more control at the cost of being a bit trickier to use at first. 
 
 We can start by getting the exact same thing as `count()`. First we'll try something that **doesn't work as intended** and then we will look at something that _does_ work.
 
@@ -106,7 +108,7 @@ pg_acc |>
   summarize(n = n())
 ```
 
-Whoa what is happening here? This counts the total number of games played by _all_ Duke players in 2021-22. If we want it separately for each player, we need to use one of the most useful `dplyr` verbs: `group_by()`. This verb performs _every subsequent operation in the pipeline_ separately for each individual value of that variable. Here we're going to `group_by(player)` to calculate the number of appearances separately by player.
+What is happening here? This counts the total number of games played by _all_ Duke players in 2021-22. If we want it separately for each player, we need to use one of the most useful `dplyr` verbs: `group_by()`. This verb performs _every subsequent operation in the pipeline_ separately for each individual value of that variable. Here we're going to `group_by(player)` to calculate the number of appearances separately by player.
 
 ```{r}
 pg_acc |> 
@@ -116,7 +118,9 @@ pg_acc |>
   arrange(desc(n))
 ```
 
-This is more involved than `count()` but now we're not stuck with one new variable. Let's get points totals for each player. We have to provide a _function_ that will create a new variable out of existing variables. We could do this using a lot of different functions. Let's look at some examples.
+This is more involved than `count()` but now we're not stuck with just one new variable. We can create as many new variables as we want. We have to make up a new variable name and use _functions_ that will create that new variable out of an existing variable. 
+
+We could do this using a lot of different functions. Let's look at some examples.
 
 ```{r}
 pg_acc |> 
@@ -140,3 +144,124 @@ pg_acc |>
   arrange(desc(total_pts))
 ```
 
+This is nice and all, but why not plot it? We can pipe a tibble we've created directly into `ggplot()` if we want. This will often give us a little more control over what we want to see.
+
+```{r}
+pg_acc |> 
+  group_by(exp) |> 
+  summarize(n = n(),
+            total_pts = sum(pts)) |> 
+  arrange(desc(total_pts)) |>
+  ggplot(aes(x = reorder(exp, total_pts),   # graph starts here
+             y = total_pts)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(x = "Class",
+       y = "Total points",
+       title = "Points scored by class",
+       subtitle = "ACC Men's Basketball, 2021-22 Season")
+```
+
+I saw a lot of you were fighting with `ggplot()` to reorder x-axes on, for example, bar graphs. This is normal; I often fight with them myself. One way to get around this is to make the tibble you want first before sending it to `ggplot()`.
+
+Here's an example. We can use `mutate()` to create the variables we want without having to try to get them right within the `ggplot()` syntax. In this example, we are using `case_when()` to map an old variable (`exp`) to a new variable (`class`). We are also creating a numeric version (`class_num`) to make it easier to sort the x-axis the way we want. Be warned: `case_when()` is tricky but really powerful once you get it figured out.
+
+```{r}
+pg_acc2 <- pg_acc |>
+  mutate(
+    class = case_when(
+      exp == "Fr" ~ "1st Year",
+      exp == "So" ~ "Sophomore",
+      exp == "Jr" ~ "Junior",
+      exp == "Sr" ~ "Senior"),
+    class_num = case_when(
+      exp == "Fr" ~ 1,
+      exp == "So" ~ 2,
+      exp == "Jr" ~ 3,
+      exp == "Sr" ~ 4))
+
+glimpse(pg_acc2)
+```
+
+We now have two new columns visible at the bottom of this output: `class` and `class_num`. This gives us new, easier to plot with, versions of the `exp` variable. We can do even more data transformations to get our data ready to send to `ggplot()`:
+
+```{r}
+graph_data <- pg_acc2 |> 
+  group_by(class) |> 
+  summarize(class_num = min(class_num),  # this is a constant within groups!
+            total_pts = sum(pts))
+```
+
+This prep makes the subsequent `ggplot()` easier to work with because we have everything exactly where we want it without having to do it inside the `ggplot()` function.
+
+```{r}
+ggplot(graph_data,
+       aes(x = reorder(class, class_num),  # reorder chr version by num version
+           y = total_pts)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(x = "Class",
+       y = "Total points",
+       title = "Points scored by class",
+       subtitle = "ACC Men's Basketball, 2021-22 Season")
+```
+
+OK let's take a step back. Not all uses of `mutate()` have to be as complicated as `case_when()`. Consider the following:
+
+```{r}
+pg_acc |> 
+  select(player, date, fga, fgm) |> 
+  head(10)
+```
+
+This is the first 10 games the first player played in the ACC data. We see how many shots this player attempted and how many he made in each game. We could turn this into a percentage easily using `mutate()`.
+
+```{r}
+pg_acc |> 
+  select(player, date, fga, fgm) |> 
+  mutate(fg_pct = 100*(fgm/fga)) |> 
+  head(10)
+```
+
+Maybe this is too bouncy game by game. We could instead calculate the field goal percentage for each player's season using `group_by()` and `summarize()`.
+
+```{r}
+pg_acc |> 
+  select(player, date, fga, fgm) |> 
+  group_by(player) |> 
+  summarize(tot_fga = sum(fga),
+            tot_fgm = sum(fgm)) |> 
+  mutate(fg_pct = 100*(tot_fgm/tot_fga)) |> 
+  head(10)
+```
+
+We have two problems here. First, we have some players who didn't attempt any shots so they get `NaN` for their shooting percentage. Second, we probably don't want to see this in alphabetical order. So we can use `arrange(desc())` to sort it from highest to lowest.
+
+```{r}
+pg_acc |> 
+  select(player, date, fga, fgm) |> 
+  group_by(player) |> 
+  summarize(tot_fga = sum(fga),
+            tot_fgm = sum(fgm)) |> 
+  mutate(fg_pct = 100*(tot_fgm/tot_fga)) |> 
+  arrange(desc(fg_pct)) |> 
+  head(10)
+```
+
+But wait. Something still seems off here. Are these the best shooters from last season? Why not?
+
+Maybe we should `filter()` the data so we only see the players who've taken at least 100 shots. What would that look like?
+
+```{r}
+pg_acc |> 
+  select(player, date, fga, fgm) |> 
+  group_by(player) |> 
+  summarize(tot_fga = sum(fga),
+            tot_fgm = sum(fgm)) |> 
+  mutate(fg_pct = 100*(tot_fgm/tot_fga)) |>
+  filter(tot_fga > 100) |> 
+  arrange(desc(fg_pct)) |>
+  head(10)
+```
+
+I realize we're mixing up 2-point and 3-point shooting here but you get the idea.
