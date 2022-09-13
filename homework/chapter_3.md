@@ -110,7 +110,7 @@ Here's how you can read it in.
 
 
 ```r
-drivers <- read_csv("../Data/drivers.csv")
+drivers <- read_csv("https://raw.githubusercontent.com/NicolasRestrep/223_course/main/Data/drivers.csv")
 ```
 
 Now use `left_join` to join `three_laps` and `drivers` together. 
