@@ -129,7 +129,8 @@ pg_acc |>
   summarize(n = n(),
             mean_pts = mean(pts),   # average per game
             total_pts = sum(pts),   # total from all games
-            max_pts = max(pts))     # maximum points in single game
+            max_pts = max(pts)) |>  # max pts in single game
+  arrange(desc(mean_pts))
 ```
 
 We used three different functions here: `mean()`, `sum()`, and `max()` and used them to create new variables. (We could also use `arrange()` if we wanted to sort the table by any of these but you've seen that already.)
@@ -139,8 +140,7 @@ Of course, we didn't have to group by player. Let's group by "experience" (class
 ```{r}
 pg_acc |> 
   group_by(exp) |> 
-  summarize(n = n(),
-            total_pts = sum(pts)) |> 
+  summarize(total_pts = sum(pts)) |> 
   arrange(desc(total_pts))
 ```
 
@@ -149,10 +149,8 @@ This is nice and all, but why not plot it? We can pipe a tibble we've created di
 ```{r}
 pg_acc |> 
   group_by(exp) |> 
-  summarize(n = n(),
-            total_pts = sum(pts)) |> 
-  arrange(desc(total_pts)) |>
-  ggplot(aes(x = reorder(exp, total_pts),   # graph starts here
+  summarize(total_pts = sum(pts)) |> 
+  ggplot(aes(x = reorder(exp, total_pts),  # graph starts here
              y = total_pts)) +
   geom_bar(stat = "identity") +
   theme_minimal() +
@@ -188,7 +186,7 @@ We now have two new columns visible at the bottom of this output: `class` and `c
 ```{r}
 graph_data <- pg_acc2 |> 
   group_by(class) |> 
-  summarize(class_num = min(class_num),  # this is a constant within groups!
+  summarize(class_num = min(class_num),  # constant within groups!
             total_pts = sum(pts))
 ```
 
@@ -196,7 +194,7 @@ This prep makes the subsequent `ggplot()` easier to work with because we have ev
 
 ```{r}
 ggplot(graph_data,
-       aes(x = reorder(class, class_num),  # reorder chr version by num version
+       aes(x = reorder(class, class_num),  # reorder by num version
            y = total_pts)) +
   geom_bar(stat = "identity") +
   theme_minimal() +

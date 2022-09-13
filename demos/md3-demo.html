@@ -11,7 +11,7 @@
 
 <meta name="author" content="Stephen Vaisey" />
 
-<meta name="date" content="2022-09-12" />
+<meta name="date" content="2022-09-13" />
 
 <title>MD3 Demo</title>
 
@@ -365,7 +365,7 @@ pre code {
 
 <h1 class="title toc-ignore">MD3 Demo</h1>
 <h4 class="author">Stephen Vaisey</h4>
-<h4 class="date">2022-09-12</h4>
+<h4 class="date">2022-09-13</h4>
 
 </div>
 
@@ -376,14 +376,6 @@ data. (Don’t forget <code>eval = FALSE</code> in the code chunk!)</p>
 <p>Let’s load the packages we will need.</p>
 <pre class="r"><code>library(toRvik)
 library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
-## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
-## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-## ✔ readr   2.1.2      ✔ forcats 0.5.2 
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <p>I’m going to grab player data by game in 2022. I’m going to add
 <code>cache = TRUE</code> to the chunk options so I don’t have to
 re-download the data every time.</p>
@@ -620,24 +612,25 @@ some examples.</p>
   summarize(n = n(),
             mean_pts = mean(pts),   # average per game
             total_pts = sum(pts),   # total from all games
-            max_pts = max(pts))     # maximum points in single game</code></pre>
+            max_pts = max(pts)) |&gt;  # max pts in single game
+  arrange(desc(mean_pts))</code></pre>
 <pre><code>## # A tibble: 14 × 5
 ##    player                 n mean_pts total_pts max_pts
 ##    &lt;chr&gt;              &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-##  1 AJ Griffin            39   10.4         405      27
-##  2 Bates Jones           27    1.44         39       7
-##  3 Jaylen Blakes         21    1            21       5
-##  4 Jeremy Roach          39    8.62        336      19
-##  5 Joey Baker            34    4.5         153      13
-##  6 Keenan Worthington     9    0.333         3       2
-##  7 Mark Williams         39   11.2         438      28
-##  8 Michael Savarino      11    1.09         12       3
-##  9 Paolo Banchero        39   17.2         671      28
-## 10 Spencer Hubbard        3    0.333         1       1
-## 11 Stanley Borden         1    0             0       0
-## 12 Theo John             38    2.82        107      10
-## 13 Trevor Keels          36   11.5         413      27
-## 14 Wendell Moore Jr.     39   13.4         523      26</code></pre>
+##  1 Paolo Banchero        39   17.2         671      28
+##  2 Wendell Moore Jr.     39   13.4         523      26
+##  3 Trevor Keels          36   11.5         413      27
+##  4 Mark Williams         39   11.2         438      28
+##  5 AJ Griffin            39   10.4         405      27
+##  6 Jeremy Roach          39    8.62        336      19
+##  7 Joey Baker            34    4.5         153      13
+##  8 Theo John             38    2.82        107      10
+##  9 Bates Jones           27    1.44         39       7
+## 10 Michael Savarino      11    1.09         12       3
+## 11 Jaylen Blakes         21    1            21       5
+## 12 Keenan Worthington     9    0.333         3       2
+## 13 Spencer Hubbard        3    0.333         1       1
+## 14 Stanley Borden         1    0             0       0</code></pre>
 <p>We used three different functions here: <code>mean()</code>,
 <code>sum()</code>, and <code>max()</code> and used them to create new
 variables. (We could also use <code>arrange()</code> if we wanted to
@@ -646,25 +639,22 @@ sort the table by any of these but you’ve seen that already.)</p>
 “experience” (class) for the whole ACC instead:</p>
 <pre class="r"><code>pg_acc |&gt; 
   group_by(exp) |&gt; 
-  summarize(n = n(),
-            total_pts = sum(pts)) |&gt; 
+  summarize(total_pts = sum(pts)) |&gt; 
   arrange(desc(total_pts))</code></pre>
-<pre><code>## # A tibble: 4 × 3
-##   exp       n total_pts
-##   &lt;chr&gt; &lt;int&gt;     &lt;dbl&gt;
-## 1 Sr     1602     14675
-## 2 Jr     1063      8443
-## 3 So     1185      8163
-## 4 Fr     1027      5428</code></pre>
+<pre><code>## # A tibble: 4 × 2
+##   exp   total_pts
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Sr        14675
+## 2 Jr         8443
+## 3 So         8163
+## 4 Fr         5428</code></pre>
 <p>This is nice and all, but why not plot it? We can pipe a tibble we’ve
 created directly into <code>ggplot()</code> if we want. This will often
 give us a little more control over what we want to see.</p>
 <pre class="r"><code>pg_acc |&gt; 
   group_by(exp) |&gt; 
-  summarize(n = n(),
-            total_pts = sum(pts)) |&gt; 
-  arrange(desc(total_pts)) |&gt;
-  ggplot(aes(x = reorder(exp, total_pts),   # graph starts here
+  summarize(total_pts = sum(pts)) |&gt; 
+  ggplot(aes(x = reorder(exp, total_pts),  # graph starts here
              y = total_pts)) +
   geom_bar(stat = &quot;identity&quot;) +
   theme_minimal() +
@@ -738,13 +728,13 @@ more data transformations to get our data ready to send to
 <code>ggplot()</code>:</p>
 <pre class="r"><code>graph_data &lt;- pg_acc2 |&gt; 
   group_by(class) |&gt; 
-  summarize(class_num = min(class_num),  # this is a constant within groups!
+  summarize(class_num = min(class_num),  # constant within groups!
             total_pts = sum(pts))</code></pre>
 <p>This prep makes the subsequent <code>ggplot()</code> easier to work
 with because we have everything exactly where we want it without having
 to do it inside the <code>ggplot()</code> function.</p>
 <pre class="r"><code>ggplot(graph_data,
-       aes(x = reorder(class, class_num),  # reorder chr version by num version
+       aes(x = reorder(class, class_num),  # reorder by num version
            y = total_pts)) +
   geom_bar(stat = &quot;identity&quot;) +
   theme_minimal() +

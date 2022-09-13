@@ -1,0 +1,61 @@
+---
+title: "TV demo"
+author: "Steve Vaisey"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+tv_ratings <- read_csv("Data/tv_ratings.csv")
+```
+
+Getting warmed up.
+
+```{r}
+glimpse(tv_ratings)
+```
+
+Filter for shows with 5 seasons or more.
+
+```{r}
+tv2 <- tv_ratings |> 
+  group_by(title) |> 
+  mutate(num_seasons = max(seasonNumber)) |> 
+  filter(num_seasons >= 5) |> 
+  ungroup()
+```
+
+Just want number of season per show.
+
+```{r}
+seasons <- tv_ratings |> 
+  group_by(title) |> 
+  mutate(the_number_of_seasons = max(seasonNumber)) |> 
+  slice(1) |> 
+  select(title, the_number_of_seasons) |> 
+  arrange(desc(the_number_of_seasons))
+```
+
+```{r}
+tv2 |> 
+  filter(genres == "Drama,Family,Fantasy") |> 
+  select(title)
+```
+
+```{r}
+tv2 |> 
+  ggplot(aes(x = seasonNumber,
+             y = av_rating,
+             group = title)) +
+  geom_line() +
+  facet_wrap(~ genres)
+```
+
