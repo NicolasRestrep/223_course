@@ -1,0 +1,142 @@
+---
+title: "MD3 Demo"
+author: "Stephen Vaisey"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Install new package for college basketball data. (Don't forget `eval = FALSE` in the code chunk!)
+
+```{r, eval=FALSE}
+install.packages("toRvik")
+```
+
+Let's load the packages we will need.
+
+```{r}
+library(toRvik)
+library(tidyverse)
+```
+
+I'm going to grab player data by game in 2022. I'm going to add `cache = TRUE` to the chunk options so I don't have to re-download the data every time.
+
+```{r, cache=TRUE}
+pg <- bart_player_game(year = 2022,
+                       stat = "box")
+```
+
+We are going to learn several `dplyr` verbs using this dataset. The main ones are:
+
+-   `filter()`
+-   `summarize()`
+-   `group_by()`
+-   `mutate()`
+-   `arrange()`
+
+Before we use these, let's `glimpse()` the data. (Note that `glimpse()` is also a verb!)
+
+```{r}
+glimpse(pg)
+```
+
+There are `r nrow(pg)` rows in this dataset. Each one corresponds to one player's performance in one game in the 2021-22 season.
+
+There are lots of variables here we could use. For example:
+
+-   `pts` is points scored
+-   `fga` is field goals attempted
+-   `fgm` is field goals made
+
+These data come from all 32 Division I conferences. Let's use the `count()` verb to check this out.
+
+```{r}
+pg |> count(conf)
+```
+
+This might be too much. We can use the `filter()` verb to limit our exploration to the ACC.
+
+```{r}
+pg_acc <- pg |> 
+  filter(conf == "ACC")
+```
+
+Now we have a new dataframe: `pg_acc`. Let's confirm that it only has teams from the ACC.
+
+```{r}
+pg_acc |> count(team)
+```
+
+We can also use `filter()` without creating a new dataframe. For example, we could filter the dataframe to just Duke and see how many games each player played. We use the `count()` variable to count the number of rows for each player.
+
+```{r}
+pg_acc |>                    # start with ACC player data
+  filter(team == "Duke") |>  # keep Duke rows
+  count(player)              # count player appearances  
+```
+
+This is great but it's not in the order we want. We can add the `arrange()` verb to the bottom of the pipeline to control this.
+
+```{r}
+pg_acc |>                    
+  filter(team == "Duke") |>  
+  count(player) |> 
+  arrange(n)                 # sort by the number of appearances
+```
+
+If we want to sort it in _descending_ order, we wrap the ordering variable in `desc()`, like this:
+
+```{r}
+pg_acc |>                    
+  filter(team == "Duke") |>  
+  count(player) |> 
+  arrange(desc(n))                 
+```
+
+Using `count()` is fine for a quick glance at frequencies but using `summarize()` gives us more control at the cost of being a bit trickier to use at first. 
+
+We can start by getting the exact same thing as `count()`. First we'll try something that **doesn't work as intended** and then we will look at something that _does_ work.
+
+```{r}
+pg_acc |> 
+  filter(team == "Duke") |> 
+  summarize(n = n())
+```
+
+Whoa what is happening here? This counts the total number of games played by _all_ Duke players in 2021-22. If we want it separately for each player, we need to use one of the most useful `dplyr` verbs: `group_by()`. This verb performs _every subsequent operation in the pipeline_ separately for each individual value of that variable. Here we're going to `group_by(player)` to calculate the number of appearances separately by player.
+
+```{r}
+pg_acc |> 
+  filter(team == "Duke") |> 
+  group_by(player) |> 
+  summarize(n = n()) |> 
+  arrange(desc(n))
+```
+
+This is more involved than `count()` but now we're not stuck with one new variable. Let's get points totals for each player. We have to provide a _function_ that will create a new variable out of existing variables. We could do this using a lot of different functions. Let's look at some examples.
+
+```{r}
+pg_acc |> 
+  filter(team == "Duke") |> 
+  group_by(player) |> 
+  summarize(n = n(),
+            mean_pts = mean(pts),   # average per game
+            total_pts = sum(pts),   # total from all games
+            max_pts = max(pts))     # maximum points in single game
+```
+
+We used three different functions here: `mean()`, `sum()`, and `max()` and used them to create new variables. (We could also use `arrange()` if we wanted to sort the table by any of these but you've seen that already.)
+
+Of course, we didn't have to group by player. Let's group by "experience" (class) for the whole ACC instead:
+
+```{r}
+pg_acc |> 
+  group_by(exp) |> 
+  summarize(n = n(),
+            total_pts = sum(pts)) |> 
+  arrange(desc(total_pts))
+```
+
