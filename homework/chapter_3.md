@@ -15,7 +15,7 @@ The data should be loaded from the the `Data` folder in our directory.
 
 
 ```r
-mario_kart <- read_csv("../Data/world_records.csv")
+mario_kart <- read_csv("https://raw.githubusercontent.com/NicolasRestrep/223_course/main/Data/world_records.csv")
 ```
 
 As always, have a look at the data using `glimpse()`. 
