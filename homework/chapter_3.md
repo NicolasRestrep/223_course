@@ -55,7 +55,7 @@ What's the track that has had the most records established in it?
 
 ## Question 4 
 
-We want to now if there are drivers who have multiple records at each track, and how many records they have. This will involve grouping by both driver and track. 
+We want to know if there are drivers who have multiple records at each track, and how many records they have. This will involve grouping by both driver and track. 
 
 Who is the player that has recorded the most records at any one track and what track was it?
 
