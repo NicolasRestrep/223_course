@@ -144,7 +144,7 @@ Do you see any patterns? Do they make sense to you?
 
 ## Question 7 
 
-There are two points that really stick out to me. All the way to the right of the x-axis, there is a team that made it to the tournament in spite of having a really bad regular season record. And around the 70% in the x-axis, there is a team that over-performed in the tournament. I want you to label these points. 
+There are two points that really stick out to me. All the way to the left of the x-axis, there is a team that made it to the tournament in spite of having a really bad regular season record. And around the 70% in the x-axis, there is a team that over-performed in the tournament. I want you to label these points. 
 
 But I am not only interested in the school but also in the year this happened. Let's combine the variables for school and year to create our labels. 
 
