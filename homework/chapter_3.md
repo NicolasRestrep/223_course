@@ -15,7 +15,7 @@ The data should be loaded from the the `Data` folder in our directory.
 
 
 ```r
-mario_kart <- read_csv("../Data/world_records.csv")
+mario_kart <- read_csv("https://raw.githubusercontent.com/NicolasRestrep/223_course/main/Data/world_records.csv")
 ```
 
 As always, have a look at the data using `glimpse()`. 
@@ -55,7 +55,7 @@ What's the track that has had the most records established in it?
 
 ## Question 4 
 
-We want to now if there are drivers who have multiple records at each track, and how many records they have. This will involve grouping by both driver and track. 
+We want to know if there are drivers who have multiple records at each track, and how many records they have. This will involve grouping by both driver and track. 
 
 Who is the player that has recorded the most records at any one track and what track was it?
 
@@ -110,7 +110,7 @@ Here's how you can read it in.
 
 
 ```r
-drivers <- read_csv("../Data/drivers.csv")
+drivers <- read_csv("https://raw.githubusercontent.com/NicolasRestrep/223_course/main/Data/drivers.csv")
 ```
 
 Now use `left_join` to join `three_laps` and `drivers` together. 

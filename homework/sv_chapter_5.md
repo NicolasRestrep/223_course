@@ -58,7 +58,7 @@ First, `filter` the dataset for observations where `tourney_finish` equals `Cham
 
 
 
-Now, use `group_by` and `summarize` to calculate the percentage of tournaments each team has. 
+Now, use `group_by` and `summarize` to calculate the percentage of tournaments each team has won. 
 
 > Hint: look at the first code chunk of the chapter. 
 
