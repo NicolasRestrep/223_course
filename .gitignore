@@ -4,5 +4,8 @@
 *_cache/
 /cache/
 
+# don't want this saved to repo but need it in the project folder sometimes
+/MD-Data/*
+
 # not sure if this is a good idea
 *_files

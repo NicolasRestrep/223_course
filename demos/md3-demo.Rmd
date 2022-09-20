@@ -150,7 +150,7 @@ This is nice and all, but why not plot it? We can pipe a tibble we've created di
 pg_acc |> 
   group_by(exp) |> 
   summarize(total_pts = sum(pts)) |> 
-  ggplot(aes(x = reorder(exp, total_pts),  # graph starts here
+  ggplot(aes(x = exp,  # graph starts here
              y = total_pts)) +
   geom_bar(stat = "identity") +
   theme_minimal() +

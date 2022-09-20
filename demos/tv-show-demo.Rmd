@@ -38,10 +38,10 @@ Just want number of season per show.
 ```{r}
 seasons <- tv_ratings |> 
   group_by(title) |> 
-  mutate(the_number_of_seasons = max(seasonNumber)) |> 
+  mutate(numseasons = max(seasonNumber)) |> 
   slice(1) |> 
-  select(title, the_number_of_seasons) |> 
-  arrange(desc(the_number_of_seasons))
+  select(title, numseasons) |> 
+  arrange(desc(numseasons))
 ```
 
 ```{r}

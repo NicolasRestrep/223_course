@@ -1,0 +1,177 @@
+---
+title: "MD4 Demo"
+author: "Stephen Vaisey"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+I'm going to go through the examples in the *ModernDive* text.
+
+### Democracy Scores
+
+If you haven't done this before you can load data from your hard drive instead of grabbing it off the internet. Here's a link to some data: https://moderndive.com/data/dem_score.csv. If you save this in a folder called **`MD-Data`** somewhere in your project folder, the code below will work.
+
+There's a small wrinkle here that I will explain in class. The problem is that the file I'm working in is in the `demos` subfolder and the data I need is in a different subfolder (`MD-data`). When projects get complicated, the **`here`** package is super useful. You will have to install it if this your first time using it on your current machine.
+
+```{r}
+library(here)
+
+dem_score <- read_csv(here("MD-Data", "dem_score.csv"))
+
+dem_score |> head(10)
+```
+
+This is what is called "wide form." A lot of data comes like this. It's not "tidy." Let's make it tidy.
+
+```{r}
+ds_tidy <- dem_score |> 
+  pivot_longer(cols = `1952`:`1992`,    # the names of the columns with the values
+               names_to = "year",       # the name of the new key variable
+               values_to = "score") |>  # the name of the new value variable
+  mutate(yearnum = as.integer(year))    # (see below)
+
+ds_tidy |> head(20)
+```
+
+Why do you think I added that `mutate()` step? In what situations might that matter? (I will show a better way later but let's go with this for now.)
+
+Let's take a brief digression and see. Let's keep only a few countries.
+
+```{r}
+ds_tidy_small <- ds_tidy |> 
+  filter(country %in% c("China", 
+                        "Korea, Rep.",
+                        "Mexico",
+                        "Russia",
+                        "Argentina"))
+```
+
+Here's the version with `year` (a character variable).
+
+```{r}
+ggplot(ds_tidy_small,
+       aes(x = year,
+           y = score,
+           group = country,
+           color = country)) +
+  geom_line(size = 2,
+            alpha = .6) +
+  theme_minimal() +
+  labs(x = "Year",
+       y = "Score",
+       color = "",
+       title = "Democracy Scores for Five Countries, 1952-1992") +
+  theme(legend.position = "top")
+```
+
+Here's the version with `yearnum` (an integer variable).
+
+```{r}
+ggplot(ds_tidy_small,
+       aes(x = yearnum,
+           y = score,
+           group = country,
+           color = country)) +
+  geom_line(size = 2,
+            alpha = .6) +
+  theme_minimal() +
+  labs(x = "Year",
+       y = "Score",
+       color = "",
+       title = "Democracy Scores for Five Countries, 1952-1992") +
+  theme(legend.position = "top")
+```
+
+The second version (`yearnum`) is an actual numeric variable. So it treats it differently than the character version.
+
+We could do this as part of the `pivot_longer()` function like this:
+
+```{r}
+ds_tidy <- dem_score |>
+  pivot_longer(`1952`:`1992`,
+               names_to = "year",
+               values_to = "score",
+               names_transform = list(year = as.integer))
+ds_tidy |> head(20)
+```
+
+
+### Drinks example
+
+Let's grab the next dataset from the **`fivethirtyeight`** package. You will need to install it if you haven't already.
+
+The dataset is called `drinks`. You can find out more about it by typing `?fivethirtyeight::drinks` in the console (i.e., **NOT** in your Markdown document).
+
+```{r}
+library(fivethirtyeight)
+data(drinks)
+glimpse(drinks)
+```
+
+This is the average number of servings of this drink type per person in each country. (The data are from 2010.)
+
+Let's look at the structure.
+
+```{r}
+drinks |> head()
+```
+
+This dataset isn't tidy either. And since we're interested in servings only at this point, let's get rid of the `total_litres` column. 
+
+Take a moment and imagine what a tidy version of this dataset would look like! (Seriously, do it.)
+
+```{r}
+drinks_long <- drinks |>
+  select(-total_litres_of_pure_alcohol) |> 
+  pivot_longer(cols = -country,
+               names_to = "type",
+               values_to = "servings")
+
+drinks_long |> head(10)
+```
+
+The `type` names are a bit redundant. We can rename them with `rename()` but we have to do that before the pivot. Otherwise, it's trickier. So let's do it again.
+
+```{r}
+drinks_long <- drinks |>
+  rename(beer = beer_servings,
+         spirit = spirit_servings,
+         wine = wine_servings) |> 
+  select(-total_litres_of_pure_alcohol) |> 
+  pivot_longer(cols = -country,
+               names_to = "type",
+               values_to = "servings")
+
+drinks_long |> head(10)
+```
+
+Having data in this form makes graphing easier. Let's try looking at drink consumption in a few countries.
+
+```{r}
+drinks_long |> 
+  filter(country %in% c("USA",
+                        "United Kingdom",
+                        "France",
+                        "China")) |> 
+  ggplot(
+    aes(x = country,
+        y = servings,
+        fill = type,
+        color = type)) +
+  geom_bar(stat = "identity",
+           position = "dodge") +
+  labs(x = "",
+       y = "# of servings per person per year",
+       title = "Alcohol consumption by type and country, 2010") +
+  theme_minimal()
+```
+
+
