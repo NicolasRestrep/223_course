@@ -100,6 +100,7 @@ ds_tidy <- dem_score |>
                names_to = "year",
                values_to = "score",
                names_transform = list(year = as.integer))
+
 ds_tidy |> head(20)
 ```
 
@@ -164,14 +165,109 @@ drinks_long |>
   ggplot(
     aes(x = country,
         y = servings,
-        fill = type,
-        color = type)) +
+        fill = type)) +
   geom_bar(stat = "identity",
            position = "dodge") +
   labs(x = "",
        y = "# of servings per person per year",
-       title = "Alcohol consumption by type and country, 2010") +
+       title = "Alcohol consumption by type and country, 2010",
+       fill = "") +
+  theme_minimal() 
+```
+
+If we remove `position_dodge()` we'll get a stacked bar chart. In which situations would one or the other be more useful?
+
+```{r}
+drinks_long |> 
+  filter(country %in% c("USA",
+                        "United Kingdom",
+                        "France",
+                        "China")) |> 
+  ggplot(
+    aes(x = country,
+        y = servings,
+        fill = type)) +
+  geom_bar(stat = "identity") +
+  labs(x = "",
+       y = "# of servings per person per year",
+       title = "Alcohol consumption by type and country, 2010",
+       fill = "") +
   theme_minimal()
+```
+
+Here the x-axis is sorted alphabetically but we could sort by, say, total number of servings. Let's see how.
+
+```{r}
+drinks_long <- drinks_long |> 
+  group_by(country) |> 
+  mutate(tot_servings = sum(servings)) |> 
+  ungroup()
+```
+
+What's new?
+
+```{r}
+glimpse(drinks_long)
+```
+
+Now we can use this information to reorder the x-axis in descending order by number of total servings.
+
+```{r}
+drinks_long |> 
+  filter(country %in% c("USA",
+                        "United Kingdom",
+                        "France",
+                        "China")) |> 
+  ggplot(
+    aes(x = reorder(country, -tot_servings),
+        y = servings,
+        fill = type)) +
+  geom_bar(stat = "identity") +
+  labs(x = "",
+       y = "# of servings per person per year",
+       title = "Alcohol consumption by type and country, 2010",
+       fill = "") +
+  theme_minimal()
+```
+
+We could also change the x and y axes using `coord_flip()` (and removing the `-` from the reorder variable if we want).
+
+```{r}
+drinks_long |> 
+  filter(country %in% c("USA",
+                        "United Kingdom",
+                        "France",
+                        "China")) |> 
+  ggplot(
+    aes(x = reorder(country, tot_servings),
+        y = servings,
+        fill = type)) +
+  geom_bar(stat = "identity") +
+  labs(x = "",
+       y = "# of servings per person per year",
+       title = "Alcohol consumption by type and country, 2010",
+       fill = "") +
+  theme_minimal() +
+  coord_flip()
+```
+
+Finally, tidy data is great but some things are easier in different formats. For example, let's say we wanted to calculate the beer/wine ratio for countries that drink at least some of both.
+
+```{r}
+drinks_wide_filtered <- drinks_long |> 
+  pivot_wider(id_cols = country,
+              names_from = type,
+              values_from = servings) |> 
+  filter(beer > 0 & wine > 0) |> 
+  mutate(bw_ratio = beer/wine)
+
+drinks_wide_filtered |> 
+  arrange(bw_ratio) |> 
+  head(10)
+
+drinks_wide_filtered |> 
+  arrange(-bw_ratio) |> 
+  head(10)
 ```
 
 
