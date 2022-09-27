@@ -1,0 +1,147 @@
+---
+title: "DV 3 demo"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(ggthemes)              # additional ggplot themes
+library(ggrepel)               # for additional plot labeling
+theme_set(theme_pander())      # set your default theme for this session
+```
+
+```{r}
+library(gapminder)
+data(gapminder)
+```
+
+```{r}
+p <- ggplot(gapminder,
+            aes(x = gdpPercap,
+                y = lifeExp))
+
+p
+```
+
+```{r}
+p + 
+  geom_point(alpha = .2)
+```
+
+What is the correlation?
+
+```{r}
+gapminder |> 
+  select(gdpPercap, lifeExp) |> 
+  cor()
+```
+
+## What **is** correlation?
+
+Let's start with a few ideas.
+
+### mean
+
+The mean is the most common measure of the "average" value.
+
+$$\bar{x} = \frac{\sum x_i}{n}$$
+Let's check the mean value of life expectancy in these data.
+
+```{r}
+mean(gapminder$lifeExp)
+```
+
+
+### standard deviation
+
+The **standard deviation** is a measure of how spread out the data are.
+
+$$SD_x = \sqrt{\frac{\sum (x_i - \bar{x})^2}{n-1}} $$
+First let's look at this visually.
+
+```{r}
+ggplot(gapminder,
+       aes(x = lifeExp)) +
+  geom_histogram(binwidth = 2,
+                 color = "white")
+```
+
+ASIDE: if you're looking to get a good baseline for breaks, try this.
+
+```{r}
+breaks <- pretty(
+  gapminder$lifeExp,                   # give it the variable
+  nclass.Sturges(gapminder$lifeExp))   # ask "Sturges" to tell you how many bins
+
+breaks
+```
+
+```{r}
+ggplot(gapminder,
+       aes(x = lifeExp)) +
+  geom_histogram(breaks = breaks,
+                 color = "white") +
+  geom_vline(xintercept = mean(gapminder$lifeExp),
+             color = "red",
+             linetype = "dashed")
+```
+
+What is the standard deviation here?
+
+```{r}
+sd(gapminder$lifeExp)
+```
+
+**The "empirical" rule**: if you can't visualize the data for some reason, it's a reasonable approximation to estimate that 68% of the data lie within 1 SD of the mean and 95% lie within 2 SDs of the mean.
+
+### standardized variable
+
+Variables are measured in units like dollars or years. If we want a "unitless" measure of something, we can *standardize* a variable. Let's call that variable $x^*$.
+
+$$x^*_i = \frac{x_i-\bar{x}}{SD_x}$$
+The unit now is "how many standard deviations from the mean is this observation"?
+
+### correlation
+
+To calculate the correlation between two variables, we need both variables standardized. Then apply this formula:
+
+$$r_{xy} = \frac{\sum x^*_i y^*_i}{n} $$
+The idea here is when one variable is 1 standard deviation higher, the other variable will be $r_{xy}$ standard deviations higher.
+
+
+
+```{r}
+library(toRvik)
+d <- bart_player_game(stat = "shooting")
+```
+
+```{r}
+dd <- d |> 
+  select(player, team, two_m, two_a, three_m, three_a) |> 
+  group_by(player, team) |> 
+  summarize(across(two_m:three_a,
+                   ~ sum(.x)),
+            .groups = "drop") |> 
+  filter(three_a > 50 & two_m > 50) |> 
+  mutate(three_pct = (three_m/three_a)*100,
+         two_pct = (two_m/two_a)*100)
+```
+
+```{r}
+cor(dd$three_pct, dd$two_pct)
+```
+
+```{r}
+dd |> 
+  select(three_pct,two_pct) |> 
+  cor()
+```
+
+
+
+
