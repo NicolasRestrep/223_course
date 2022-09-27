@@ -133,10 +133,6 @@ dd <- d |>
 ```
 
 ```{r}
-cor(dd$three_pct, dd$two_pct)
-```
-
-```{r}
 dd |> 
   select(three_pct,two_pct) |> 
   cor()
