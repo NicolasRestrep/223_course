@@ -20,6 +20,8 @@ mario_kart <- read_csv("https://raw.githubusercontent.com/NicolasRestrep/223_cou
 
 As always, have a look at the data using `glimpse()`. 
 
+As you can see, each row in the dataset represents a record time that has been set at a particular track (and some tracks have had more records set than others). 
+
 ## Question 1 
 
 First, let's keep only the records for `Three Lap`. We are interested in whole races after all. 
@@ -37,7 +39,7 @@ Anyone worth their salt knows that `"Rainbow Road"` should not even count as a r
 
 ## Question 2 
 
-Use `summarize()` to get the average time at Rainbow Road and the standard deviation of the records. 
+Use `summarize()` to get the average time and standard deviation of records set at Rainbow Road. 
 
 Now, do the same for the dataset that contains all other tracks. 
 
