@@ -66,7 +66,7 @@ Before we move forward, we want to know what these variables capture. Run `?corr
 
 ## Question 3 
 
-Here, we are interwsted  in the relationship between the HDI and CPI. 
+Here, we are interested in the relationship between the HDI and CPI. 
 
 Begin by making a scatter plot that shows the relationship between these two variables. Describe the relationship that you see. 
 
