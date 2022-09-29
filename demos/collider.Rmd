@@ -1,0 +1,88 @@
+---
+title: "Conditioning on a Collider"
+author: "Stephen Vaisey"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(ggthemes)
+theme_set(theme_pander())
+set.seed(0929)
+```
+
+
+## admissions
+
+```{r}
+d <- tibble(
+  test_score = rnorm(1000),
+  other_factors = rnorm(1000)
+)
+
+qplot(test_score,
+      other_factors,
+      data = d)
+
+cor(d)
+
+d <- d |> 
+  mutate(admitted = if_else(test_score + other_factors > 1, 1L, 0L))
+
+ggplot(d,
+       aes(x = test_score,
+           y = other_factors,
+           color = factor(admitted))) +
+  geom_point()
+
+admit_data <- d |> 
+  filter(admitted == 1) |> 
+  select(-admitted)
+
+qplot(test_score,
+      other_factors,
+      data = admit_data)
+
+cor(admit_data)
+
+```
+
+## basketball
+
+```{r}
+db <- tibble(
+  ability = rnorm(500),
+  twos = ability + rnorm(500),
+  threes = ability + rnorm(500)
+)
+
+db <- db |> 
+  select(-ability)
+
+qplot(twos,
+      threes,
+      data = db)
+
+cor(db)
+
+db <- db |> 
+  mutate(recruited = if_else(twos > 2 | threes > 2, "Yes", "No"))
+
+ggplot(db,
+       aes(x = twos,
+           y = threes,
+           color = recruited)) +
+  geom_point()
+
+db |> 
+  filter(recruited == "Yes") |> 
+  select(-recruited) |> 
+  cor()
+
+```
+
