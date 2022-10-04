@@ -1,0 +1,155 @@
+---
+title: "DV 4-5 Demo"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Make sure you have an up-to-date version of **toRvik**.
+
+```{r, eval=FALSE}
+devtools::install_github("andreweatherman/toRvik")
+```
+
+Load libraries.
+
+```{r, message=FALSE}
+library(tidyverse)
+library(toRvik)
+```
+
+Load data.
+
+```{r}
+d <- bart_player_season(year = 2022,
+                        stat = "box")
+glimpse(d)
+```
+
+Let's deal with the weird height variable.
+
+```{r}
+d |> count(hgt)
+```
+
+Use separate to split the character `hgt` column into two new variables: `feet` and `inches`. Then we can make a new variable, `height`, which is the total height in inches.
+
+```{r}
+d <- d |> 
+  separate(hgt,
+           sep = "-",                    # the character to split on
+           into = c("feet", "inches"),   # the two new variables
+           convert = TRUE) |>            # make them numeric
+  mutate(height = feet*12 + inches)      # create the new height variable
+```
+
+Here's the height distribution.
+
+```{r}
+p <- ggplot(d,
+       aes(x = height,
+           y = (..count../sum(..count..)) * 100 )) +    # manual y
+  geom_histogram(binwidth = 1,
+                 color = "white") +
+  labs(y = "Percent of players",
+       x = "Height in Inches") +
+  scale_x_continuous(breaks = seq(60, 96, 6),
+                     minor_breaks = NULL) +         # no minor gridlines
+  scale_y_continuous(breaks = 0:11,
+                     minor_breaks = NULL) +         # no minor gridlines
+  theme_minimal()
+
+p
+```
+
+We want to see it separately by position. But this doesn't work quite right.
+
+```{r}
+p + facet_wrap(~ pos)
+```
+
+As I have been saying, it's usually easier to do the data prep outside of the plot. Since height is discrete (an integer), I can use `geom_bar()` here instead.
+
+```{r}
+d |> 
+  select(pos, height) |> 
+  drop_na() |> 
+  group_by(pos, height) |> 
+  summarize(count = n()) |>   # this step will drop a group so it's just pos
+  mutate(pct = (count / sum(count)) * 100) |>
+  
+  ggplot(aes(x = height ,
+             y = pct )) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ pos) +
+  scale_x_continuous(breaks = seq(60, 96, 6),
+                     minor_breaks = NULL) +
+  theme_minimal()
+```
+
+Let's put the scales on every facet.
+
+```{r}
+
+# data prep
+d |> 
+  select(pos, height) |> 
+  drop_na() |> 
+  group_by(pos, height) |> 
+  summarize(count = n()) |>   # this step will drop a group so it's just pos now
+  mutate(pct = (count / sum(count)) * 100) |>  # sending to plot
+
+# plot
+  ggplot(aes(x = height ,
+             y = pct )) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ pos, scales = "free") +
+  scale_y_continuous(limits = c(0, 30),
+                     breaks = seq(0, 30, 5),
+                     minor_breaks = NULL) +
+  scale_x_continuous(limits = c(60, 90),
+                     breaks = seq(60, 96, 6),
+                     minor_breaks = NULL) +
+  theme_minimal()
+```
+
+## Two dimensions
+
+Let's use data from the TV ratings data you'll need for your homework.
+
+```{r}
+library(here)
+tvd <- read_csv(here("Data", "tv_ratings.csv"))
+```
+
+```{r}
+glimpse(tvd)
+```
+
+Let's look at the shows that have been around for at least 5 seasons
+
+```{r}
+tvd5 <- tvd |> 
+  group_by(titleId) |> 
+  mutate(max_seasons = max(seasonNumber)) |> 
+  filter(max_seasons >= 5) |> 
+  ungroup()
+
+glimpse(tvd5)
+```
+
+```{r}
+ggplot(tvd5,
+       aes(x = seasonNumber,
+           y = av_rating,
+           group = titleId)) +
+  geom_line(alpha = .2) +
+  theme_minimal() +
+  geom_smooth(aes(group = 1),
+              se = FALSE) +
+  theme(legend.position = "none") 
+```
+
