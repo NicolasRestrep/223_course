@@ -1,0 +1,230 @@
+---
+title: "MD5 Demo"
+author: "Stephen Vaisey"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+Load packages and set theme.
+
+```{r}
+library(tidyverse)
+library(moderndive)
+library(ggthemes)
+library(patchwork)
+theme_set(theme_pander())
+```
+
+Let's look at the MD evaluations data.
+
+```{r}
+data(evals)
+glimpse(evals)
+```
+
+We are going to ask whether the "beauty" of an instructor predicts their teaching evaluations. Let's simplify the dataset so we can really look at it.
+
+```{r}
+set.seed(1015)                            # for replicable results
+
+d <- evals |>
+  mutate(random = runif(nrow(evals))) |>  # as many random numbers as rows
+  arrange(prof_ID, random) |>             # sort by random within groups
+  group_by(prof_ID) |>                    # group it
+  slice(1) |>                             # keep only one per prof
+  select(prof_ID, score, bty_avg) |>      # keep vars we need
+  rename(bty = bty_avg) |>                # shorter is better for me
+  ungroup()                               # just for completeness
+
+glimpse(d)
+```
+
+Let's look at the first few cases.
+
+```{r}
+head(d)
+```
+
+We can use the **skimr** package for summary statistics if we want. There are lots of ways to do this.
+
+```{r}
+library(skimr)
+skim(d)
+```
+
+You could also just use `summary()`. You don't get the cool little histograms, though.
+
+```{r}
+summary(d)
+```
+
+It's always good practice to look at the distributions of each variable.
+
+```{r}
+qplot(score, data = d)
+qplot(bty, data = d)
+```
+
+Let's look at the data, using `geom_jitter()` to avoid overplotting.
+
+```{r}
+ggplot(d,
+       aes(x = bty,
+           y = score)) +
+  geom_jitter(alpha = .3)
+```
+
+It's hard to tell how strongly (if at all) these two variables are correlated. We can do this a few different ways.
+
+```{r}
+d |> get_correlation(score ~ bty)     # MD wrapper function (tibble)
+d |> select(score, bty) |> cor()      # base R version (matrix)
+```
+
+This correlation isn't super high, but it's not nothing. Let's recall what the correlation means.
+
+Linear regression is another way to summarize a bivariate (i.e., two-way) relationship between quantitative variables. It's useful because later we can extend to more dimensions of predictors.
+
+We are going to introduce two new functions here:
+
+-   `lm()`: a base R function that estimates a linear regression
+-   `get_regression_table()`: a **moderndive** function that is a wrapper on `broom::tidy()`. You are welcome to use `broom::tidy()` or something else if you'd like.
+
+```{r}
+mod1 <- lm(score ~ bty,
+           data = d)
+
+get_regression_table(mod1)
+```
+
+For now, please ignore every column to the right of `estimate`. We'll talk about that later. For now let's consider the estimates. What do these mean?
+
+Begin by looking at this plot.
+
+```{r}
+ggplot(d,
+       aes(x = bty,
+           y = score)) +
+  geom_jitter(alpha = .3) +
+  geom_smooth(method = "lm",     # does this look familiar?
+              se = FALSE)        # don't want to use "standard errors" for now
+```
+
+Let's look at a slightly different version that makes the x-axis go all the way down to zero.
+
+```{r, echo=FALSE}
+ggplot(d,
+       aes(x = bty,
+           y = score)) +
+  geom_jitter(alpha = .3) +
+  geom_smooth(method = "lm",
+              se = FALSE,
+              fullrange = TRUE) +
+  scale_x_continuous(limits = c(0,8.5)) +
+  annotate("text",
+           x = 0,
+           y = 3.50,
+           label = "(0, 3.58)",
+           color = "red") +
+  geom_segment(x = 0,
+               y = 3.58,
+               xend = 1,
+               yend = 3.58,
+               linetype = "dotted",
+               color = "red") +
+  geom_segment(x = 1,
+               y = 3.58,
+               xend = 1,
+               yend = 3.681,
+               linetype = "dotted",
+               color = "red") +
+  annotate("text",
+           x = 1.35,
+           y = 3.65,
+           label = "+ .101",
+           color = "red")
+```
+
+Now we have a clear picture of what these numbers mean. The **intercept** (often called $\alpha$ or "alpha") is the expected value of $Y$ when $X = 0$. The **slope** (often called $\beta$ or "beta") is the expected difference in $Y$ when $X$ is one unit higher.
+
+If we wanted, we could make our `geom_smooth()` manually once we know the intercept and slope.
+
+```{r}
+p <- ggplot(d,
+       aes(x = bty,
+           y = score)) +
+  geom_jitter(alpha = .3)
+
+p + geom_abline(intercept = 3.58,
+                slope = .101,
+                color = "blue",
+                size = 1.5)
+```
+
+This should look familiar from middle school. You learned the formula for a line is:
+
+$$
+y = mx + b
+$$
+
+In statistics, it's a bit different:
+
+$$
+\hat{y} = \alpha + \beta x
+$$ Why $\hat{y}$ (pronounced "y hat")? Because as you can see, the line doesn't pass through all the points. It's not a *deterministic function* like a line in geometry. It's an *expectation* that *summarizes* the relationship between two variables with a single line that is the best possible fit.
+
+So if the intercept is 3.58 and the slope is .101, what is the expected evaluation score for an instructor with a "beauty" rating of 8? What about a "beauty" rating of 2?
+
+## What *is* regression?
+
+Let's start with the idea of a normal distribution.
+
+```{r}
+set.seed(12345)
+# fake data
+fd <- tibble(x1 = rnorm(n = 500,
+                        mean = 500,
+                        sd = 100),
+             x2 = rnorm(n = 500,
+                        mean = 500,
+                        sd = 50))
+# wider SD
+p1 <- ggplot(fd,
+             aes(x = x1)) +
+  geom_histogram(color = "white",
+                 boundary = 500,
+                 binwidth = 25) +
+  scale_x_continuous(limits = c(200,800))
+
+# narrower SD
+p2 <- ggplot(fd,
+             aes(x = x2)) +
+  geom_histogram(color = "white",
+                 boundary = 500,
+                 binwidth = 25) +
+  scale_x_continuous(limits = c(200,800))
+
+# put together
+p1 / p2
+
+```
+
+Formula for a normal distribution.
+
+$$
+y_i \sim \text{Normal}(\mu, \sigma)
+$$
+
+Formula for a linear regression.
+
+$$
+\begin{aligned}y_i &\sim \text{Normal}(\mu_i, \sigma) \\\mu_i &= \alpha + \beta x_i\end{aligned}
+$$
+
+Now any value of $X$ will have it's own **conditional mean**.

@@ -148,6 +148,17 @@ ggplot(tvd5,
            group = titleId)) +
   geom_line(alpha = .2) +
   theme_minimal() +
+  geom_smooth(se = FALSE) +
+  theme(legend.position = "none") 
+```
+
+```{r}
+ggplot(tvd5,
+       aes(x = seasonNumber,
+           y = av_rating,
+           group = titleId)) +
+  geom_line(alpha = .2) +
+  theme_minimal() +
   geom_smooth(aes(group = 1),
               se = FALSE) +
   theme(legend.position = "none") 
