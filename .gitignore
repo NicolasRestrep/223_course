@@ -10,3 +10,6 @@
 
 # not sure if this is a good idea
 *_files
+
+# don't want the homework .Rmds in the repo
+/homework/*.Rmd
