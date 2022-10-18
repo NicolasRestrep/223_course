@@ -12,4 +12,8 @@
 *_files
 
 # don't want the homework .Rmds in the repo
+# even if we put them in the folder
 /homework/*.Rmd
+
+# raw homework Rmds
+/hw_rmds/

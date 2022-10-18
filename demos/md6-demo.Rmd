@@ -1,0 +1,334 @@
+---
+title: "MD 6 Demo"
+output: html_document
+date: '`r Sys.Date()`'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(moderndive)
+library(ggthemes)
+library(patchwork)
+library(broom)
+library(ggrepel)
+theme_set(theme_pander())
+```
+
+I just want a data frame with one class per professor. As I mentioned last time, I could have used `slice_sample(n = 1)` instead of what I do below with creating a random number. But unfortunately that would mean I have a different dataset (because the seed wouldn't work the same). So I'll stick with this.
+
+```{r}
+data(evals)
+
+set.seed(1015)                            # for replicable results
+
+d <- evals |>
+  mutate(random = runif(nrow(evals))) |>  # as many random numbers as rows
+  arrange(prof_ID, random) |>             # sort by random within groups
+  group_by(prof_ID) |>                    # group it
+  slice(1) |>                             # keep only one per prof
+  select(prof_ID,                         # keep vars we need
+         score, 
+         bty_avg,
+         gender,
+         ethnicity,
+         language) |>                     
+  rename(beauty = bty_avg,                # better name
+         sex = gender) |>                 # what they measured           
+  ungroup()                               # just for completeness
+
+glimpse(d)
+```
+
+Here's the regression from last week.
+
+```{r}
+mod1 <- lm(score ~ beauty,
+           data = d)
+
+get_regression_table(mod1)
+```
+
+Let's look at the predictions and residuals.
+
+```{r}
+mod1_preds <- get_regression_points(mod1)
+
+head(mod1_preds)
+```
+
+Here's the regression line (blue).
+
+```{r,echo=FALSE}
+ggplot(d,
+       aes(x = beauty,
+           y = score)) +
+  geom_jitter(alpha = .3) +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  labs(x = "Beauty",
+       y = "Evaluation",
+       title = "Simple regression results")
+```
+
+Here are the residuals.
+
+```{r,echo=FALSE}
+ggplot(mod1_preds,
+       aes(x = beauty,
+           y = residual)) +
+  geom_jitter(alpha = .3) +
+  geom_hline(yintercept = 0,
+             color = "blue") +
+  labs(x = "Beauty",
+       y = "Residual",
+       title = "Simple regression residuals")
+```
+
+One way to quantify how well a predictor predicts the outcome is to use the **variance**. We've seen this already but let's review. Here's the formula. $\bar{y}$ is the mean of $y$.
+
+$$
+var(y) = \frac{1}{n-1}\sum(y_i - \bar{y})^2
+$$
+Since our outcome is evaluation score, we can just do that.
+
+```{r}
+var_y <- d |> 
+  pull(score) |> 
+  var()
+
+var_y
+```
+
+This is equivalent to the variance of the "residuals" when we just guess the mean value for every person!
+
+```{r, echo=FALSE}
+ggplot(d,
+       aes(x = beauty,
+           y = score)) +
+  geom_jitter(alpha = .3) +
+  geom_hline(yintercept = mean(d$score),
+             color = "blue") +
+  labs(x = "Beauty",
+       y = "Evaluation",
+       title = "Guessing the mean for everyone")
+```
+
+Adding `beauty` as a predictor improves our guess.
+
+```{r, echo=FALSE}
+ggplot(d,
+       aes(x = beauty,
+           y = score)) +
+  geom_jitter(alpha = .3) +
+  geom_hline(yintercept = mean(d$score),
+             color = "blue") +
+  geom_smooth(method = "lm",
+              se = FALSE,
+              color = "red",
+              linetype = "dashed") +
+  labs(x = "Beauty",
+       y = "Evaluation",
+       title = "Mean vs. regression line")
+```
+
+Now let's see what the spread looks like if we look at the residuals from the regression line.
+
+```{r}
+var_yhat1 <- mod1_preds |> 
+  pull(residual) |> 
+  var()
+
+var_yhat1
+```
+
+If we take the ratio of these and subtract it from one, that gives us the $R^2$ or "proportion of variance explained" by beauty scores.
+
+```{r}
+1 - (var_yhat1 / var_y)
+```
+
+It looks like "beauty" can account for about `r round((1 - (var_yhat1 / var_y)) * 100, 1)` percent of the variance in the evaluation scores.
+
+In other words, if we try to guess instructors' evaluation scores, our guesses will be `r round((1 - (var_yhat1 / var_y)) * 100, 1)` percent _less wrong_ on average if we know the instructor's beauty rating. 
+
+We can get this from `broom::glance()` or `moderndive::get_regression_summaries()` without doing it manually. The latter will be a more curated list of things you'll need for this course.
+
+```{r}
+broom::glance(mod1)
+moderndive::get_regression_summaries(mod1)
+```
+
+Let's try a different predictor. Let's predict ratings with `sex`.
+
+```{r}
+mod2 <- lm(score ~ sex,
+           data = d)
+
+get_regression_table(mod2)
+get_regression_summaries(mod2)
+```
+
+Looks like male instructors get slightly better evaluations but this only accounts for 2-3% of the variance.
+
+In general, we are not going to want to do this with different variables one by one. We want to do **multiple regression**.
+
+```{r}
+mod3 <- lm(score ~ beauty + sex,
+           data = d)
+
+get_regression_table(mod3)
+```
+
+Here's what this model does.
+
+```{r, echo=FALSE}
+ggplot(d,
+       aes(x = beauty,
+           y = score,
+           group = sex,
+           color = sex)) +
+  geom_jitter(alpha = .3) +
+  geom_parallel_slopes(se = FALSE) +
+  theme(legend.position = "top")
+```
+
+Here's the formula:
+
+$$
+\widehat{score}_i = 3.36 + .115(beauty_i) + .264(male_i)
+$$
+We might instead prefer a model like this, which allows the relationship between beauty and evaluations to be different for male and female instructors.
+
+```{r, echo=FALSE}
+ggplot(d,
+       aes(x = beauty,
+           y = score,
+           group = sex,
+           color = sex)) +
+  geom_jitter(alpha = .3) +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  theme(legend.position = "top")
+```
+
+Here's the syntax, results, and formula.
+
+```{r}
+mod4 <- lm(score ~ beauty + sex + beauty:sex,
+           data = d)
+
+get_regression_table(mod4)
+```
+
+$$
+\widehat{score}_i = 3.45 + .097(beauty_i) + .108(male_i) + .033(beauty_i \times male_i)
+$$
+The slope for female instructors is .097. The slope for male instructors is .097 + .033 = .130.
+
+```{r}
+get_regression_summaries(mod3) # parallel
+get_regression_summaries(mod4) # interactions
+```
+
+The interaction model really doesn't add much. It's probably reasonable to assume the slopes are parallel.
+
+## Example 2
+
+Let's look at which features of basketball team performance predict win percentage. We're going to consider the following predictors:
+
+- Effective FG percentage
+- Turnover rate
+- Offensive rebound percentage
+- Free throw percentage
+
+See the description [here](https://kenpom.com/blog/four-factors/) if you want more information.
+
+```{r}
+library(toRvik)
+
+bf <- bart_factors(year = 2022)
+
+bf <- bf |> 
+  mutate(winpct = (wins/games)*100) |> 
+  select(team, conf, winpct, off_efg, off_to, off_or, off_ftr)
+```
+
+Let's look at some bivariate relationships.
+
+**YOU WILL NEED GGally PACKAGE FOR THIS**
+
+```{r}
+library(GGally)
+
+bf |> 
+  select(-team, -conf) |> 
+  ggpairs()
+```
+
+Since $R^2$ is the same as the correlation squared, we can use `cor()` to see the individual variance explained.
+
+```{r}
+bf |> 
+  select(-team, -conf) |> 
+  cor() |> 
+  as_tibble(rownames = "predictor") |> 
+  select(predictor:winpct) |> 
+  mutate(r2 = winpct^2)
+```
+
+Let's how well we can do with all four factors.
+
+```{r}
+bmod1 <- lm(winpct ~ off_efg + off_to + off_or + off_ftr,
+            data = bf)
+
+get_regression_table(bmod1)
+get_regression_summaries(bmod1)
+```
+
+We can get the points to plot.
+
+```{r}
+bmod1_preds <- get_regression_points(bmod1,
+                                     newdata = bf,
+                                     ID = "team") |> 
+  left_join(select(bf, team, conf))
+```
+
+Here are the model predictions (x-axis) and the actual 2022 win percentages (y-axis).
+
+```{r,echo=FALSE}
+ggplot(bmod1_preds,
+       aes(x = winpct_hat,
+           y = winpct,
+           label = team)) +
+  geom_point(alpha = .3) +
+  geom_text_repel() +
+  geom_abline(intercept = 0,
+              slope = 1,
+              color = "blue",
+              alpha = .6)
+```
+
+Or just showing these predictions among the ACC.
+
+```{r}
+ggplot(filter(bmod1_preds, conf == "ACC"),
+       aes(x = winpct_hat,
+           y = winpct,
+           label = team)) +
+  geom_point(alpha = .3) +
+  geom_text() +
+  geom_abline(intercept = 0,
+              slope = 1,
+              color = "blue",
+              alpha = .6)
+```
+
+
