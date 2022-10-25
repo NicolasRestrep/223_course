@@ -1,0 +1,211 @@
+---
+title: 'MD 6 demo #2'
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For this demo we're going to need some data from the **bayesrules** package. So be sure to install that.
+
+```{r}
+library(moderndive)
+library(tidyverse)
+theme_set(theme_minimal())
+```
+
+Load the data and take a look. This is data from a DC Rideshare service. The main outcome here is `rides` -- the number of rides on that day.
+
+```{r}
+data(bikes, package = "bayesrules")
+glimpse(bikes)
+```
+
+Here's an overview of the big trends in the data.
+
+```{r}
+ggplot(bikes,
+       aes(x = date,
+           y = rides)) +
+  geom_point(alpha = .3) +
+  geom_smooth(method = "loess")
+```
+
+## Simple regression
+
+Let's try a simple regression: the number of rides as a function of temperature.
+
+```{r}
+ggplot(bikes,
+       aes(x = temp_actual,
+           y = rides)) +
+  geom_jitter(alpha = .3) +
+  geom_smooth(method = "lm",
+              se = FALSE)
+```
+
+Let's look at the coefficients from such a model.
+
+```{r}
+model1 <- lm(rides ~ temp_actual,
+             data = bikes)
+get_regression_table(model1)
+```
+
+Here's the result in equation form:
+
+$$
+\widehat{rides_i} = -2169 + 89.2 \times Fahrenheit_i
+$$
+
+What do these numbers mean?
+
+* -2169 is the expected number of rides when the temperature = 0 degrees (Fahrenheit).
+* for every degree (Fahrenheit) the temperature goes up, we expect there to be 89.2 additional riders.
+
+To understand the intercept better, let's look at it this way:
+
+```{r}
+ggplot(bikes,
+       aes(x = temp_actual,
+           y = rides)) +
+  geom_jitter(alpha = .3) +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  scale_x_continuous(limits = c(-10, 90)) +
+  scale_y_continuous(limits = c(-2200, 7000)) +
+  geom_segment(x = 0,
+               y = -2169,
+               xend = 42,
+               yend = -2169 + 89.2*42,
+               color = "red",
+               linetype = "dashed")
+```
+
+OK let's practice. What would the predicted ridership be for:
+
+* a 60-degree day?
+* a 72-degree day?
+* an 80-degree day?
+
+But how does this relate to the correlation coefficient? Let's first get the correlation coefficient (and round it to two decimal places).
+
+```{r}
+get_correlation(rides ~ temp_actual,
+                data = bikes) |> 
+  round(2)
+```
+
+What is this thing? The correlation coefficient is the expected change in standard deviations for one variable when the other variable changes by one standard deviation. How does this relate to the slope (89.2) we got from the regression?
+
+Here's how we write the regression slope with explicit units.
+
+$$
+\frac{89.2\text{ rides}}{1 \text{ degree (F)}}
+$$
+
+What if we had done the regression in Celsius instead? Let's convert the temperature to Celsius.
+
+```{r}
+bikes <- bikes |> 
+  mutate(temp_celsius = (temp_actual-32)*(5/9))
+
+model1c <- lm(rides ~ temp_celsius,
+              data = bikes)
+get_regression_table(model1c)
+```
+
+So the formula now is:
+
+$$
+\widehat{rides_i} = 687 + 161 \times Celsius_i
+$$
+
+Being explicit about the units again, the slope coefficient is:
+
+$$
+\frac{161\text{ rides}}{1 \text{ degree (C)}}
+$$
+
+Does this change the correlation?
+
+```{r}
+get_correlation(rides ~ temp_celsius,
+                data = bikes) |> 
+  round(2)
+```
+
+No it doesn't!
+
+What is the relationship between the correlation coefficient and the slope? We have to "get rid of the units".
+
+$$
+\frac{161\text{ rides}}{1 \text{ degree (C)}} \times \frac{\sigma_{\text{degrees (C)}}}{\sigma_{\text{rides}}}
+$$
+Let's do this using R like a calculator.
+
+```{r}
+(161 * (sd(bikes$temp_celsius) / sd(bikes$rides))) |> 
+  round(2)
+```
+
+Same correlation coefficient! We can say "when the temperature goes up by 1 standard deviation, we'd expect ridership to be .58 standard deviations higher."
+
+We can do the same thing with the original regression in degrees Fahrenheit.
+
+```{r}
+(89.2 * (sd(bikes$temp_actual) / sd(bikes$rides))) |> 
+  round(2)
+```
+
+Again, it's the same, with exactly the same interpretation.
+
+## Multiple regression
+
+In real life, we rarely want to know just the relationship between one variable and another. In this case, we might want to be able to predict demand. For example, we might want to predict ridership so we could know when it's a good time to maintain bikes (low demand) or a good time to have as many bikes available as possible (high demand).
+
+Let's look again at the data. What features do you think might predict demand for a bike sharing service?
+
+```{r}
+glimpse(bikes)
+```
+
+Let's look at a pretty straightforward regression that builds on what we just did.
+
+```{r}
+model2 <- lm(rides ~ temp_celsius + weekend,
+             data = bikes)
+get_regression_table(model2)
+```
+
+```{r}
+ggplot(bikes,
+       aes(x = temp_celsius,
+           y = rides,
+           group = weekend,
+           color = weekend)) +
+  geom_jitter(alpha = .3) +
+  geom_parallel_slopes(se = FALSE)
+```
+
+```{r}
+ggplot(bikes,
+       aes(x = temp_celsius,
+           y = rides,
+           group = weekend,
+           color = weekend)) +
+  geom_jitter(alpha = .3) +
+  geom_smooth(method = "lm",
+              se = FALSE)
+```
+
+```{r}
+model3 <- lm(rides ~ temp_celsius * weekend,
+             data = bikes)
+get_regression_table(model3)
+```
+
+
+
