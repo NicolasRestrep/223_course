@@ -14,6 +14,8 @@
 # don't want the homework .Rmds in the repo
 # even if we put them in the folder
 /homework/*.Rmd
+/homework/*.html
+
 
 # raw homework Rmds
 /hw_rmds/
