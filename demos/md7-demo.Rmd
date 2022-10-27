@@ -1,0 +1,29 @@
+---
+title: "MD 7 demo"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(toRvik)
+```
+
+```{r}
+duke2022 <- bart_player_game(
+  year = 2022,
+  stat = "shooting",
+  team = "Duke"
+)
+```
+
+```{r}
+total3 <- duke2022 |> 
+  summarize(three_a = sum(three_a),
+            three_m = sum(three_m))
+```
+

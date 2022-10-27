@@ -1,7 +1,7 @@
 ---
 title: "Homework 6.2"
 author: "Stephen Vaisey"
-date: "2022-10-25"
+date: "2022-10-27"
 output: 
   html_document: 
     toc: true
@@ -75,7 +75,7 @@ Use `get_regression_table()` or `broom::tidy()` to display the results. This wil
 
 ## Question 4
 
-Using the models from above, tell me what the predicted ridership would be if the wind is blowing at 20 KPH. What would the predicted ridership be if thd wind is blowing at 20 MPH?
+Using the models from above, tell me what the predicted ridership would be if the wind is blowing at 20 KPH. What would the predicted ridership be if the wind is blowing at 20 MPH?
 
 ## Question 5
 
@@ -116,4 +116,4 @@ If the temperature and the wind speed are average, what is the expected ridershi
 
 ## Question 9
 
-You can use `get_regression_points()` or `predict()` to see how the model did at predicting each individual value of `rides`. Use one of these functions to find the date with the _largest absolute residual_. That is, find the day where the model is most wrong about predicted ridership. Why do you think the model is so wrong on this day?
+You can use `get_regression_points()` or `predict()` to see how the model did at predicting each individual value of `rides`. Use one of these functions to find the date with the _largest absolute residual_. That is, find the day where the model is most wrong about predicted ridership. Why is the model so wrong about this day? (There is a correct answer here.)
