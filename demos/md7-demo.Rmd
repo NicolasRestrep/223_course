@@ -5,25 +5,187 @@ date: "`r Sys.Date()`"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
 ```
 
 ```{r}
 library(tidyverse)
 library(toRvik)
+library(moderndive)
+theme_set(theme_minimal())
 ```
+
+Get and wrangle data to see trends in three-point attempts.
 
 ```{r}
-duke2022 <- bart_player_game(
-  year = 2022,
-  stat = "shooting",
-  team = "Duke"
-)
+three_trend <- 
+  bart_team_box() |> 
+  group_by(year) |> 
+  summarize(tpa = sum(tpa),
+            fga = sum(fga)) |> 
+  mutate(three_pct = (tpa/fga) * 100 ) |> 
+  select(year, three_pct) |> 
+  filter(year < 2022)
 ```
+
+Plot.
 
 ```{r}
-total3 <- duke2022 |> 
-  summarize(three_a = sum(three_a),
-            three_m = sum(three_m))
+ggplot(three_trend,
+       aes(x = year,
+           y = three_pct)) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(limits = c(30, 40),
+                     breaks = 30:40) +
+  scale_x_continuous(breaks = 2008:2021) +
+  labs(title = "Trends in Three-Point Attempts",
+       subtitle = "NCAA, 2008-2021",
+       y = "% of FG attempts",
+       x = "Season Ending Year",
+       caption = "Data from toRvik (accessed 11/2/2022)")
 ```
 
+Let's pretend we don't know the info for the 2021-2022 season. We want to know if the slight downward trend in three-point attempts continued or whether it was just a short-term aberration.
+
+```{r}
+shots_2022 <- 
+  bart_team_box(year = 2022) |> 
+  select(tpa, fga) |> 
+  summarize(tpa = sum(tpa),
+            fga = sum(fga),
+            three_pct = (tpa/fga)*100 )
+shots_2022
+```
+
+Let's create a stylized dataset that has all the shots from 2021-22. Don't worry about the details.
+
+```{r}
+set.seed(123)
+all_shots <- tibble(
+  three = c(rep(0, 430232),        # all the twos
+            rep(1, 262022)),       # all the threes  
+  random = runif(692254, 0, 1)) |> # random for sorting
+  arrange(random) |> 
+  select(-random)
+
+head(all_shots, 10)
+```
+
+What if we tried to figure this out by watching 100 shots and seeing if we could discern a pattern. (Try this multiple times and you will get a different answer each time.)
+
+```{r}
+all_shots |> 
+  sample_n(size = 100) |>  # keep only 80 random shots
+  pull(three) |>          # keep the column with the 80 0/1s
+  mean()                  # take the mean
+```
+
+### sample of 120
+
+Let's say it's early in the season and sports journalists want to write a story about this. What if 50 random journalists tried to guess after watching 120 shots each? (That's the number of shots in a typical game.)
+
+```{r}
+scouts100 <- 
+  all_shots |> 
+  rep_sample_n(size = 120,
+               reps = 50) |> 
+  group_by(replicate) |> 
+  summarize(prop_threes = mean(three))
+
+scouts100
+```
+
+Let's visualize what all the different journalists saw.
+
+```{r}
+ggplot(scouts100,
+       aes(x = prop_threes)) +
+  geom_histogram(boundary = .4,
+                 binwidth = .01,
+                 color = "white",
+                 alpha = .5) +
+  geom_vline(xintercept = c(.379, .388) , # adding the "peak" percentage line
+             color = c("red", "blue"),
+             linetype = "dashed") +
+  scale_x_continuous(limits = c(.25,.55))
+```
+
+### sample of 500
+
+What if they waited until they had seen 500 shots?
+
+```{r}
+scouts500 <- 
+  all_shots |> 
+  rep_sample_n(size = 500,
+               reps = 50) |> 
+  group_by(replicate) |> 
+  summarize(prop_threes = mean(three))
+
+ggplot(scouts500,
+       aes(x = prop_threes)) +
+  geom_histogram(boundary = .4,
+                 binwidth = .01,
+                 color = "white",
+                 alpha = .5) +
+  geom_vline(xintercept = c(.379, .388) , # adding the "peak" percentage line
+             color = c("red", "blue"),
+             linetype = "dashed") +
+  scale_x_continuous(limits = c(.25,.55))
+```
+
+### sample of 1000
+
+What if they waited until they had seen 1000 shots?
+
+```{r}
+scouts1000 <- 
+  all_shots |> 
+  rep_sample_n(size = 1000,
+               reps = 50) |> 
+  group_by(replicate) |> 
+  summarize(prop_threes = mean(three))
+
+ggplot(scouts1000,
+       aes(x = prop_threes)) +
+  geom_histogram(boundary = .4,
+                 binwidth = .01,
+                 color = "white",
+                 alpha = .5) +
+  geom_vline(xintercept = c(.379, .388) , # adding the "peak" percentage line
+             color = c("red", "blue"),
+             linetype = "dashed") +
+  scale_x_continuous(limits = c(.25,.55))
+```
+
+
+### sample of 20,000
+
+What if they waited until they had seen 20,000 shots?
+
+```{r}
+scouts20000 <- 
+  all_shots |> 
+  rep_sample_n(size = 20000,
+               reps = 50) |> 
+  group_by(replicate) |> 
+  summarize(prop_threes = mean(three))
+
+ggplot(scouts20000,
+       aes(x = prop_threes)) +
+  geom_histogram(boundary = .4,
+                 binwidth = .0025,  # make the bars skinnier for higher resolution
+                 color = "white",
+                 alpha = .5) +
+  geom_vline(xintercept = c(.379, .388) , # adding the "peak" percentage line
+             color = c("red", "blue"),
+             linetype = "dashed") +
+  scale_x_continuous(limits = c(.25,.55))
+```
+
+## Takeaways
+
+As we add more data, our estimates get more precise. That is, they get "skinnier." They also follow a normal distribution ("bell curve") even if the underlying process isn't normal ("bell shaped"). In this case, the underlying process is success/failure (does the shot go in or not). But even so our estimates become more normal. This is a consequence of the **Central Limit Theorem**. The book talks about this and you will watch a video about that for your homework.
