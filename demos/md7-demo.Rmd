@@ -164,7 +164,7 @@ ggplot(scouts1000,
 
 ### sample of 20,000
 
-What if they waited until they had seen 20,000 shots?
+What if they waited until they had seen 20,000 shots? I'm adding a line for last season too so we can see when we get confident enough to say if this year is any different from last year or the peak.
 
 ```{r}
 scouts20000 <- 
@@ -180,11 +180,50 @@ ggplot(scouts20000,
                  binwidth = .0025,  # make the bars skinnier for higher resolution
                  color = "white",
                  alpha = .5) +
-  geom_vline(xintercept = c(.379, .388) , # adding the "peak" percentage line
-             color = c("red", "blue"),
+  geom_vline(xintercept = c(.379, .388, .375) , # true, peak (2019), 2021
+             color = c("red", "blue", "black"),
              linetype = "dashed") +
   scale_x_continuous(limits = c(.25,.55))
 ```
+
+This is hard to see so let's zoom in.
+
+```{r}
+ggplot(scouts20000,
+       aes(x = prop_threes)) +
+  geom_histogram(boundary = .4,
+                 binwidth = .001,  # make the bars skinnier for higher resolution
+                 color = "white",
+                 alpha = .5) +
+  geom_vline(xintercept = c(.379, .388, .375) , # true, peak (2019), 2021
+             color = c("red", "blue", "black"),
+             linetype = "dashed") +
+  scale_x_continuous(limits = c(.3625,.40))
+```
+
+
+### sample of 80,000
+
+```{r}
+scouts80000 <- 
+  all_shots |> 
+  rep_sample_n(size = 80000,
+               reps = 50) |> 
+  group_by(replicate) |> 
+  summarize(prop_threes = mean(three))
+
+ggplot(scouts80000,
+       aes(x = prop_threes)) +
+  geom_histogram(boundary = .4,
+                 binwidth = .001,  # make the bars skinnier for higher resolution
+                 color = "white",
+                 alpha = .5) +
+  geom_vline(xintercept = c(.379, .388, .375) , # true, peak (2019), 2021
+             color = c("red", "blue", "black"),
+             linetype = "dashed") +
+  scale_x_continuous(limits = c(.3625,.40))
+```
+
 
 ## Takeaways
 
