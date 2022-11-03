@@ -10,7 +10,7 @@ output:
 
 
 
-Here, we are going to practice and reinforce some of the ideas that we encountered in chapter 5. Sampling is crucial for understanding any type of data analysis. When you are presented with brand new set of data, it is always useful to think: what groups or populations am I capturing in these data? Can I To what groups or populations can I extrapolate insights I draw from these data? Do I have enough data? To answer these questions, it is essential to grasp sampling; to think about how features of a population might (or might not) make their way to our spreadsheets. 
+Here, we are going to practice and reinforce some of the ideas that we encountered in chapter 5. Sampling is crucial for understanding any type of data analysis. When you are presented with brand new set of data, it is always useful to think: what groups or populations am I capturing in these data? To what groups or populations can I extrapolate insights I draw from these data? Do I have enough data? To answer these questions, it is essential to grasp sampling; to think about how features of a population might (or might not) make their way to our spreadsheets. 
 
 Say we are interested in finding out the proportion of science Nobel prizes that have been awarded to people born in the US. We could easily Google this, the information is available. But imagine that for some reason we are only able to access portions of the data - i.e. samples. How would we go about finding this proportion and how confident would we be in our findings. 
 
