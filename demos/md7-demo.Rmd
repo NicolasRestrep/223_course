@@ -78,8 +78,8 @@ What if we tried to figure this out by watching 100 shots and seeing if we could
 
 ```{r}
 all_shots |> 
-  sample_n(size = 100) |>  # keep only 80 random shots
-  pull(three) |>          # keep the column with the 80 0/1s
+  sample_n(size = 100) |>  # keep only 100 random shots
+  pull(three) |>          # keep the column with the 100 0/1s
   mean()                  # take the mean
 ```
 
@@ -88,20 +88,20 @@ all_shots |>
 Let's say it's early in the season and sports journalists want to write a story about this. What if 50 random journalists tried to guess after watching 120 shots each? (That's the number of shots in a typical game.)
 
 ```{r}
-scouts100 <- 
+scouts120 <- 
   all_shots |> 
   rep_sample_n(size = 120,
                reps = 50) |> 
   group_by(replicate) |> 
   summarize(prop_threes = mean(three))
 
-scouts100
+scouts120
 ```
 
 Let's visualize what all the different journalists saw.
 
 ```{r}
-ggplot(scouts100,
+ggplot(scouts120,
        aes(x = prop_threes)) +
   geom_histogram(boundary = .4,
                  binwidth = .01,
