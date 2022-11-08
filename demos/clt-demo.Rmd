@@ -1,0 +1,47 @@
+---
+title: "CLT Demo"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(moderndive)
+theme_set(theme_minimal())
+```
+
+```{r}
+data(gapminder, package = "gapminder")
+```
+
+The distribution of GDP per capita isn't normal (i.e., not "bell shaped") as we can see here.
+
+```{r}
+qplot(gdpPercap,
+      data = gapminder,
+      geom = "density")
+```
+
+Let's take 500 replicate samples of 100 country-years and then plot the resulting mean GDPs.
+
+```{r}
+set.seed(1108)
+
+my_means <- gapminder |>
+  select(gdpPercap) |> 
+  rep_sample_n(size = 100,
+               reps = 500) |> 
+  group_by(replicate) |> 
+  summarize(mean = mean(gdpPercap))
+
+qplot(mean,
+      data = my_means,
+      geom = "density")
+
+```
+
+This is pretty normally distributed!
