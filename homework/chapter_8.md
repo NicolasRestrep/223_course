@@ -1,148 +1,119 @@
-# Chapter 8 
-
-At this point you have the right to be mad at me. After going through chapter 8, you probably realized that I had you doing resampling in the complementary exercises for chapter 7. Plus, I made you do it so many times. Let's practice it one more time, but this time armed with the language we were taught in chapter 8. 
-
-For the first example, we are going to use a dataset that contains the results of a survey conducted where artists and folks in the music business listed their favorite rap tracks. For each track we have information about its release data, and what we are going to do is to examine what is the year of release that shows up the most - i.e. we are going to try to find out the year when rap peaked. This is not (only) a silly attempt to make a data analysis course more interesting or relatable,; this is a real issue in the sociology of culture and consumption. We have evidence [that music sales are higher for old music](https://www.theatlantic.com/ideas/archive/2022/01/old-music-killing-new-music/621339/). Nostalgia is the name of the game. A lot of people really believe that old music was better and are organizing their music-listening habits around this idea. So understanding where supposed "experts" place the peak of rap is important and interesting. 
-
-For the second example, we are  going to use a dataset that contains about 300 penalty kicks taken throughout the history of the soccer world cup. A penalty in soccer is a big deal. Folk wisdom is that is practically a goal. In reality, the chances of scoring a penalty is about 0.7 which is still huge given how low-scoring soccer is (and people who don't like soccer will remind you about how low-scoring it is). We will examine the proportion of penalties that have been actually scored and the confidence we can have in our inference. 
-
-Let's begin by importing the first dataset. 
-
-
-```r
-library(tidyverse)
-theme_set(theme_minimal())
-rap_artists <- read_csv("../Data/rap_artists.csv")
-```
-
-Now, let's plot the distribution of years as well as the median. 
+---
+title: "Chapter 8"
+author: "Nicolas Restrepo"
+output: 
+  html_document: 
+    toc: true
+    theme: united
+    keep_md: true
+---
 
 
-```r
-median_year <- median(rap_artists$year)
 
-rap_artists %>% 
-  ggplot(aes(x = year)) +
-  geom_histogram(alpha = 0.5) +
-  geom_vline(xintercept=median_year, col = "red", linetype = "dashed") +
-  labs(x = "Year", 
-       y = "", 
-       title = "Distribution of Years")
-```
+We are going to practice resampling again, but this time armed with the language we learned in chapter 8. We are going to use three different datasets along the way. Don't forget to load the packages you will need.
 
-![](chapter_8_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+# Polling
 
-Okay, we know what our target of knowledge is: 1999. Let's resample and see how well we can capture it. 
+## Question 1
 
-## Question 1 
-
-Let's make a function that samples a certain number of songs and extracts the years. I'll give you the skeleton and you finish it. 
+Let's start by redoing the polling analysis we did in class. Be sure to use this exact code to make the dataset.
 
 
 ```r
-take_years <- function(dataframe, ___) {
-  yrs <- ___ %>% 
-    sample_n(., size = n) %>% 
-    pull(___)
-  return(yrs)
-}
+set.seed(1108)
+
+poll <- tibble(
+  vote_gop = rbinom(n = 1000,
+                    size = 1,
+                    prob = .53))
 ```
 
-Okay, so now I want you to make the following plot: 
+I want you to make a **bootstrap 95% percent confidence interval** for GOP (Republican) vote share based on this poll. I want you to do this two different ways to connect what you learned in chapter 7 and chapter 8.
 
-![](chapter_8_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+##### First way
 
-I'll give you code with some blank and you have to finish it so that it produces the same plot. 
+Calculate it using *only* the following functions:
 
+* `rep_sample_n()`
+* `group_by()`
+* `summarize()`
+* `quantile()`
 
-```r
-set.seed(9898)
+A few hints: 
 
-samples <- tibble()
+1. Make sure you pay attention to the `replace` option in `rep_sample_n()`.
+2. When you have the bootstrap distribution, you can get the confidence interval by piping it to `quantile(c(.025, .975))`.
 
-for (i in 1:35) {
-  yrs <- ___(rap_artists, 5)
-  yrs_df <- tibble(
-    sample_n = ___, 
-    years = ___
-  )
-  samples <- rbind(samples, yrs_df)
-}
+What is the estimated confidence interval?
 
-samples %>% 
-  ggplot(aes(x = sample_n, 
-             y = years, 
-             group = ___)) +
-  geom_hline(yintercept = ___, col = "red") +
-  ___() 
-```
+#### Second way
 
-Okay, now that you can plot this, let's think about the results. We were selecting a very small sample each time: only 5. Did any of our intervals not capture the median year of the original dataset? 
+Now do it using *only* the following functions:
 
-## Question 2 
+* `specify()`
+* `generate()`
+* `calculate()`
+* `get_ci()`
 
-Before we jump into some analysis, let's review some vocabulary. 
+What is the estimated confidence interval? (HINT: even though you are estimating a proportion, use `stat = "mean"` instead of `stat = "prop"`.)
 
-What is a confidence interval? 
+How similar are the two confidence intervals you calculated? Why aren't they *exactly* the same?
 
-What denotes more confidence: a narrow or a wide confidence interval?
+# History of rap
+
+Here, we are going to use a dataset that contains the results of a survey conducted where artists and critics listed their favorite rap tracks. For each track we have information about its release data, and what we are going to do is to examine what is the year of that shows up the most - i.e. we are going to try to find out the year when rap peaked. 
+
+This is not a silly attempt to make a data analysis course more interesting or relatable, this is a real issue in the sociology of culture. We have evidence [that music sales are higher for old music](https://www.theatlantic.com/ideas/archive/2022/01/old-music-killing-new-music/621339/). Nostalgia is the name of the game. A lot of people really believe that old music was better and organizing their music-listening habits around this idea. So understanding where supposed "experts" place the peak of rap is important and interesting. 
+
+The data can be found [here](https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-14/polls.csv). Load the data and call the object `rap_poll` and then we'll get started.
+
+First of all, let's just keep the #1 song listed by each critic to make things simple. Use `filter()` to keep only those songs where `rank` is equal to 1. The resulting data frame should have 107 rows.
+
+## Question 2
+
+Make a histogram of the year each of the tracks was released. What is the year of the most commonly named favorite track in this critic poll? How many critics named a track from this year?
 
 ## Question 3
 
-Often, we are interested in a specific statistic. In this case, we want to look at the median year of our sub-samples. Let's modify the function above so that it calculates that. 
-
-
-```r
-take_years <- function(dataframe, ___) {
-  yrs <- ___ %>% 
-    sample_n(., size = n) %>% 
-    pull(___)
-  return(median(yrs))
-}
-```
-
-Now, you are on your own. Using a for loop (or your preferred method of iteration) calculate the median year for 500 sub-samples of 25 songs each. Plot the resulting histogram. 
+Let's assume that these 107 critics are a random sample of a population of critics. If so, it might be useful to construct a 95% confidence interval for the peak of rap. Calculate this interval, using either implementation of the percentile method I asked you to use above. Report the upper and lower bound of this interval to the nearest year.
 
 ## Question 4
 
-The chapter teaches you a neat heuristic: that your 95% confidence interval can be calculated by taking the median (or mean) and adding 1.96 standard deviations (for the upper limit) and subtracting 1.96 standard deviations (for the lower limit). Using this, and *without* using the chapter's helper functions, calculate the 95% confidence interval of your sample medians from question 3. 
+Let's say that instead of asking 107 critics, we had asked 25 critics. What would the confidence interval (again, rounded to the nearest year) be in that case? (HINT: you will probably need to use the "first way" for calculating a confidence interval you used above.) How does the width of this confidence interval compare to the width of the confidence interval when we use the full sample of 107?
 
-Using the interpretation that the chapter gives you, tell me what that 95% confidence interval means.
+
+# World Cup penalties
+
+Okay, let's go back to my favorite sport: the soccer World Cup. We will use a dataset of almost 300 penalties shot at the men's World Cup throughout its history. I want you to use bootstrapping to tell me what is the proportion of penalties scored. This might be useful for predicting the proportion of penalties that will be scored in the next World Cup.
+
+The data can be found [here](https://raw.githubusercontent.com/NicolasRestrep/223_course/main/Data/WorldCupShootouts.csv). Load the data and then use `drop_na()` to drop rows where we don't have complete information. The resulting dataset should have 279 rows. The `Goal` column indicates whether the penalty resulted in a goal.
 
 ## Question 5
 
-Now, one of the things of working with samples is that you can make more tangible calculations on them. Use the `percentile method` to construct a 95% confidence interval of your sample medians. 
-
-What do you notice? Are these results similar than those you got above? Do they differ much? 
+What proportion of the penalties were scored?
 
 ## Question 6
 
-Okay, let's go back to my spiritual home: the soccer World Cup. I have a dataset of around 300 penalties shot at the competition throughout its history. I want you to use bootstrapping to tell me what is the proportions of penalties scored. 
+Construct the bootstrap distribution of the proportion of penalties scored. Visualize this distribution and use `shade_ci()` to overlay the 95% percentile confidence interval. What are the lower and upper bounds of the interval?
 
-Let's read in the data. 
+## Question 7
 
+Using your bootstrap distribution, calculate the **standard error** of this estimate.
 
-```r
-penalties <- read_csv("../Data/WorldCupShootouts.csv")
-penalties <- penalties %>% 
-  drop_na()
-```
+## Question 8
 
-This is the true proportion of penalties scored. 
+The chapter teaches you a neat heuristic: that a 95% confidence interval can be calculated by taking the mean and adding 1.96 standard deviations (for the upper limit) and subtracting 1.96 standard deviations (for the lower limit). Using this, and without using the chapter's helper functions, calculate the 95% confidence interval of the proportion of penalty kicks scored at the World Cup.
 
 
-```r
-mean(penalties$Goal)
-```
 
-```
-## [1] 0.6989247
-```
 
-Modify the function and code above so that you can calculate the proportion of goals scored for 500 samples of 50 penalties. 
 
-Calculate the 95% confidence interval of your sampled proportions. 
 
-How confident are you that the probability of scoring a penalty kick in the World Cup is around 70%? 
+
+
+
+
+
+
 
 
