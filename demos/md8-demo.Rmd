@@ -1,0 +1,295 @@
+---
+title: "MD 8 demo"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(moderndive)
+theme_set(theme_minimal())
+```
+
+## Review
+
+Let's think about this in the context of an election. Let's think about the NC Senate race.
+
+* What do we want to know?
+* What is the population? (V)
+* What is the sampling frame? (LV/RV)
+
+Here's the [latest polling](https://projects.fivethirtyeight.com/polls/senate/2022/north-carolina/). NOTE: this link isn't likely to keep working after election day.
+
+Why do they take samples of around 1000? Is it just a case of "a lot."
+
+We've been building up to this point already. Last time we were looking at lots of samples. Like taking 50 replicate samples. But in real life we can't just go out and do 50 polls because it's expensive!
+
+## Sampling Distribution
+
+This is the value of doing simulations. We can see what would happen if we did do tons of different polls of different sizes. 
+
+Let's imagine the true proportion of voters that is going to vote for the Republican is .53 (i.e., 53%). We can simulate 100 worlds where we survey 250 people and see how variable the estimates would be.
+
+```{r}
+set.seed(1234)
+
+sim250 <- tibble(
+  simnum = 1:100) |>                      # set up replicate tibble
+  rowwise() |>                            # do the next bit row-by-row
+  mutate(prop_gop = mean(rbinom(n = 250,  # simulate the polls
+                         size = 1,
+                         prob = .53)) |> 
+           round(2))                      # round to 2 decimals
+```
+
+Now we can plot them.
+
+```{r}
+ggplot(sim250,
+       aes(x = prop_gop)) +
+  geom_bar(color = "white",
+           alpha = .4) +
+  geom_vline(xintercept = .53,
+             color = "red") +
+  annotate("text", 
+           x = .532, 
+           y = 2,
+           label = "true value",
+           angle = 90,
+           color = "red") +
+  scale_x_continuous(breaks = seq(from = .30, 
+                                  to = .70, 
+                                  by = .01),
+                     limits = c(.43, .63))
+```
+
+Now try it with 1000.
+
+```{r, echo = FALSE}
+set.seed(123)
+
+sim1000 <- tibble(
+  simnum = 1:100) |>                       # set up replicate tibble
+  rowwise() |>                             # do the next bit row-by-row
+  mutate(prop_gop = mean(rbinom(n = 1000,  # simulate the polls
+                         size = 1,
+                         prob = .53)) |> 
+           round(2))                       # round to 2 decimals
+
+ggplot(sim1000,
+       aes(x = prop_gop)) +
+  geom_bar(color = "white",
+           alpha = .4) +
+  geom_vline(xintercept = .53,
+             color = "red") +
+  annotate("text", 
+           x = .532, 
+           y = 2,
+           label = "true value",
+           angle = 90,
+           color = "red") +
+  scale_x_continuous(breaks = seq(from = .30, 
+                                  to = .70, 
+                                  by = .01),
+                     limits = c(.43, .63))
+```
+
+I illustrated this with 100 polls because I wanted you too see the variability. But what if we just kept replicating samples of size 1000 over and over forever? As we get closer and closer to infinite replicate samples, we get closer to what's called the **sampling distribution**. 
+
+Here's an example with 100,000 replicate samples. (I'll draw using a density plot this time, too, instead of using `geom_bar()` with the rounded values.)
+
+```{r}
+library(patchwork)
+
+set.seed(123)
+
+# sampling dist simulation for N = 1000
+sim1000 <- tibble(
+  simnum = 1:1e5) |>                       # set up replicate tibble
+  rowwise() |>                             # do the next bit row-by-row
+  mutate(prop_gop = mean(rbinom(n = 1000,  # simulate the polls
+                         size = 1,
+                         prob = .53)))     # no rounding needed this time
+
+# sampling dist simulation for N = 250
+sim250 <- tibble(
+  simnum = 1:1e5) |>                       # set up replicate tibble
+  rowwise() |>                             # do the next bit row-by-row
+  mutate(prop_gop = mean(rbinom(n = 250,  # simulate the polls
+                         size = 1,
+                         prob = .53)))     # no rounding needed this time
+
+# plot of N = 1000 samples
+p1000 <- ggplot(sim1000,
+                aes(x = prop_gop)) +
+  geom_density(color = "white",
+               fill = "red",
+               alpha = .4) +
+  geom_vline(xintercept = .53,
+             color = "red") +
+  scale_x_continuous(breaks = seq(from = .30, 
+                                  to = .70, 
+                                  by = .01),
+                     limits = c(.45, .61)) +
+  scale_y_continuous(breaks = NULL) +
+  labs(title = "Sampling distribution for proportion, N = 1000",
+       y = "",
+       x = "Proportion GOP Vote")
+
+# plot of N = 250 samples
+p250 <- ggplot(sim250,
+               aes(x = prop_gop)) +
+  geom_density(color = "white",
+               fill = "red",
+               alpha = .4) +
+  geom_vline(xintercept = .53,
+             color = "red") +
+  scale_x_continuous(breaks = seq(from = .30, 
+                                  to = .70, 
+                                  by = .01),
+                     limits = c(.45, .61)) +
+  scale_y_continuous(breaks = NULL) +
+  labs(title = "Sampling distribution for proportion, N = 250",
+       y = "",
+       x = "Proportion GOP Vote")
+
+p1000/p250
+```
+
+This illustrates the **Central Limit Theorem**. As we sample repeatedly from a distribution, the means of those samples take on a normal (bell) shape. As the sample size of each replicate goes up, the distribution gets "skinnier" (i.e., more precise)
+
+## Bootstrapping
+
+This is nice and all, but, again, we're not going to do lots of polls. If we do one poll, we just get one number. But how much confidence should we put in that number?
+
+So let's do one poll.
+
+```{r}
+set.seed(1108)
+
+# do the poll
+poll <- tibble(
+  vote_gop = rbinom(n = 1000,
+                    size = 1,
+                    prob = .53))
+
+# check out the data
+head(poll, n = 10)
+
+# what's the poll result?
+mean(poll$vote_gop)
+
+# plot the poll result
+ggplot(poll,
+       aes(x = factor(vote_gop,
+                      label = c("Dem", "Rep")))) +
+  geom_bar() +
+  labs(title = "Results of our ACTUAL poll",
+       x = "Intended vote",
+       y = "# of respondents")
+```
+
+We can do a statistical trick called "bootstrapping" to simulate the uncertainty from just our poll.
+
+Bootstrapping is sampling **with replacement** from **our own dataset**. Our dataset has 1000 responses. We take a sample of 1000 from our sample of 1000. This means that we will get some respondents 0 times, 1 time, 2 times, or even more.
+
+Note: I'm NOT using `set.seed()` here. This means every time you run the code below, you'll get a somewhat different result.
+
+```{r}
+library(infer)
+
+boot_reps <- poll |> 
+  specify(response = vote_gop) |>   # tell it what variable you're interested in
+  generate(reps = 1000)             # resample from own data 1000 times
+
+glimpse(boot_reps)
+```
+
+This gives us a giant dataset of bootstrap replicates. We can use other functions from the **infer** package to complete the workflow.
+
+```{r}
+boot_dist <- boot_reps |> 
+  calculate(stat = "mean")          # like group_by() |> summarize()
+
+glimpse(boot_dist)
+```
+
+We can also visualize this distribution.
+
+```{r}
+visualize(boot_dist)
+```
+
+This is nice simple visualization of the sampling variability. But what do we do with it?
+
+## Confidence interval
+
+Intuitively, a **confidence interval** is a range of plausible values the true value might take given our one single data source (e.g., our one poll). The book uses the difference between "spear fishing" (the point estimate or single mean value of .515 that we got) and the "net fishing" estimate of a confidence interval.
+
+```{r}
+ci <- boot_dist |> 
+  get_confidence_interval(level = .95)
+
+ci
+```
+
+These numbers tell us a plausible range where we might find the true value. For example, after conducting this poll, we might say "we believe between `r round(ci[1] * 100, 1)`% and `r round(ci[2] * 100, 1)`% of voters will vote for the Republican candidate."
+
+HINT: `get_ci()` is a synonym for the longer function name.
+
+Where does this number come from? That is, what is `get_confidence_interval()` or `get_ci()` actually doing?
+
+* percentile method (default)
+* standard error method
+
+This is a visualization of the percentile method.
+
+```{r}
+boot_dist |> 
+  visualize() + shade_confidence_interval(ci)
+```
+
+How does this compare to the standard error method? First, the SE method needs the "point estimate"---the mean we calculated earlier.
+
+```{r}
+ci_se <- boot_dist |> 
+  get_ci(level = .95,
+         point_estimate = mean(poll$vote_gop),
+         type = "se")
+
+ci_se
+```
+
+The results are almost identical so I won't plot them.
+
+The SE method is based on the theoretical properties of the sampling distribution. The **standard error** is the name for the standard deviation of the *sampling distribution* (which we saw above). It's called a "standard error" because it quantifies how wrong (i.e., error-y) our estimates will be given a certain sample size.
+
+Now we can't directly access the sampling distribution, which---remember---would require infinite actual polls. So `get_ci()` uses the standard deviation of the *bootstrap distribution* in its place.
+
+```{r}
+sd(boot_dist$stat)
+```
+
+If we want a 95% confidence interval, we need values that span the normal curve from -1.96 standard errors to +1.96 standard errors. 
+
+```{r}
+curve(dnorm(x,0,1),
+      from = -3,
+      to = 3)
+```
+
+Consider that our SE-based confidence interval has a width of `r round(ci_se[2] - ci_se[1], 3) * 100` percentage points. Maybe we're not happy about that. After all, our poll tells us we can't be even reasonably sure who is going to win the election. How can we make the confidence interval smaller?
+
+The thing you need to know is that a larger sample means a smaller confidence interval. But can we be more specific?
+
+The theoretical (i.e., sampling distribution-based) formula for the SE of a proportion is as follows:
+
+$$ \text{SE} = \frac{p(1-p)}{\sqrt{n}} $$
+
+The denominator is the square root of the sample size. So if we want to make the standard error half as small, what would we need to do with the sample size?
