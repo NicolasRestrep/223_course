@@ -290,6 +290,6 @@ The thing you need to know is that a larger sample means a smaller confidence in
 
 The theoretical (i.e., sampling distribution-based) formula for the SE of a proportion is as follows:
 
-$$ \text{SE} = \frac{p(1-p)}{\sqrt{n}} $$
+$$ \text{SE} = \sqrt{\frac{p(1-p)}{n}} $$
 
 The denominator is the square root of the sample size. So if we want to make the standard error half as small, what would we need to do with the sample size?
