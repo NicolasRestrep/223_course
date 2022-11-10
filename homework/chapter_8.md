@@ -1,6 +1,6 @@
 ---
 title: "Chapter 8"
-author: "Nicolas Restrepo"
+author: "Nicolas Restrepo and Stephen Vaisey"
 output: 
   html_document: 
     toc: true
@@ -12,11 +12,13 @@ output:
 
 We are going to practice resampling again, but this time armed with the language we learned in chapter 8. We are going to use three different datasets along the way. Don't forget to load the packages you will need.
 
+To make life easier on yourself, be sure to specify a random number seed using `set.seed()` at the beginning of *each* of your code blocks. 
+
 # Polling
 
 ## Question 1
 
-Let's start by redoing the polling analysis we did in class. Be sure to use this exact code to make the dataset.
+Let's start by redoing the polling analysis we did in class. Be sure to use this exact code (including this specific `set.seed()`) to make the dataset.
 
 
 ```r
@@ -38,6 +40,8 @@ Calculate it using *only* the following functions:
 * `group_by()`
 * `summarize()`
 * `quantile()`
+
+You may also use the `pull()` or `select()` function if you need them.
 
 A few hints: 
 
