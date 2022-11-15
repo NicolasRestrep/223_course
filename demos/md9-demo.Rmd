@@ -1,0 +1,318 @@
+---
+title: "MD 9 Demo"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(infer)
+library(moderndive)
+library(patchwork)
+library(here)
+library(ggplot2movies)
+theme_set(theme_minimal())
+```
+
+# Review
+
+What is a seed, anyway? ("Phone book" example.)
+
+# Hypothesis testing
+
+## Promotions example
+
+Sex differences in promotion?
+
+```{r}
+set.seed(1234)
+
+promotions <- promotions |> 
+  rename(sex = gender)       # more accurate name
+
+promotions |>
+  sample_n(size = 6) |> 
+  head()
+```
+
+Visualize.
+
+```{r}
+p1 <- ggplot(promotions,
+            aes(x = sex,
+                fill = decision)) +
+  geom_bar() +
+  labs(x = "Sex of name on resume") +
+  theme(legend.position = "top")
+
+p1
+```
+
+`tally()` as shorthand for `summarize(n = n())`
+
+```{r}
+promotions |>  
+  group_by(sex, decision) |>  
+  tally()
+```
+
+Could this difference occur by chance?
+
+We have 48 people. 24 males; 24 females. What if we were going to promote 35 people by chance?
+
+![](https://d33wubrfki0l68.cloudfront.net/e0a7015dfee6253f5ca0e3687f348deff2cbff80/9c996/images/shutterstock/shutterstock_670789453.jpg)
+
+You can think of having a deck of cards, shuffling it, and pulling out 35 people at random.
+
+Let's convert out outcome into a number (1 = promoted, 0 = not) to make this easier.
+
+```{r}
+promotions <- promotions |> 
+  mutate(promoted = if_else(decision == "promoted", 1, 0))
+```
+
+#### Real data
+
+```{r}
+promotions |> 
+  group_by(sex) |> 
+  summarize(mean = mean(promoted))
+```
+
+#### Shuffled data
+
+```{r}
+# prep the data
+promotions_shuffled <- promotions_shuffled |> 
+  rename(sex = gender) |> 
+  mutate(promoted = if_else(decision == "promoted", 1, 0))
+
+# summary
+promotions_shuffled |> 
+  group_by(sex) |> 
+  summarize(mean = mean(promoted))
+```
+
+Or we can visualize:
+
+```{r}
+p2 <- ggplot(promotions_shuffled,
+             aes(x = sex,
+                 fill = decision)) +
+  geom_bar() +
+  labs(x = "Sex of name on resume") +
+  theme(legend.position = "top")
+
+p1 + p2
+```
+
+The book shows the results of 16 different shufflings:
+
+![](https://d33wubrfki0l68.cloudfront.net/e61d00d8565448abe5ce80b02e447451d0ca09d5/216f1/moderndive_files/figure-html/null-distribution-1-1.png)
+
+The real world indeed seems to show a sex difference bigger that what we get in an imaginary universe of equality.
+
+## Permutation tests
+
+Permutation is another word for shuffling.
+
+Here are the types of things we might want to check:
+
+![](`r here("images","inference-scenarios.png")`)
+
+# Understanding hypothesis tests
+
+We are usually comparing a **null hypothesis** with an **alternative hypothesis**. For example
+
+$H_0 : \text{men and women promoted at the same rate}$
+
+$H_A : \text{men and women promoted at different rates}$
+
+The basic gist is that we make up a world that looks like the null and see if real life is so weird that we have to conclude that the null isn't reasonable.
+
+-   Alpha ($\alpha$) level: how weird counts as weird? (This is usually .05 but that's not a law of the universe)
+-   p-value: how weird is our actual sample?
+
+The p-value means "if my null model were true, how often would I get a result *this extreme* by chance?"
+
+# Doing this with **infer**
+
+What we've been doing:
+
+![](https://d33wubrfki0l68.cloudfront.net/1cd0a53125c3b7dc4b12c04780f7f5b204ecbb1e/98111/images/flowcharts/infer/visualize.png)
+
+Adding a new step:
+
+![](https://d33wubrfki0l68.cloudfront.net/391315f52b3be002b49628738e22cfd6dae7cae1/cff0f/images/flowcharts/infer/ht.png)
+
+Let's get the observed difference in proportions.
+
+NOTE: **infer** is weird in that it doesn't want you to use "proportions" when you have a numeric outcome. Since `promoted` is a 0/1 variable, we use "diff in means".
+
+Let's get the observed difference in proportion promoted between males and females.
+
+#### observed
+
+```{r}
+observed_diff <- promotions |> 
+  specify(promoted ~ sex) |>             # outcome ~ predictor
+  calculate(stat = "diff in means",      # which stat we want
+            order = c("male", "female")) # male - female
+
+observed_diff
+```
+
+#### null distribution
+
+```{r}
+set.seed(12345)
+
+null_distribution <- promotions |>  
+  specify(formula = promoted ~ sex) |>  
+  hypothesize(null = "independence") |>  # meaning "no difference"
+  generate(reps = 1000, 
+           type = "permute") |>  
+  calculate(stat = "diff in means", 
+            order = c("male", "female"))
+null_distribution
+```
+
+Or we can visualize.
+
+```{r}
+visualize(null_distribution,
+          bins = 10)
+```
+
+#### getting the p-value
+
+Visually.
+
+```{r}
+visualize(null_distribution,
+          bins = 10) +
+  shade_p_value(obs_stat = observed_diff,
+                direction = "both")
+```
+
+Numerically.
+
+```{r}
+null_distribution |> 
+  get_p_value(obs_stat = observed_diff,
+              direction = "both")
+```
+
+# Comparison to confidence intervals
+
+Confidence intervals and p-values are closely related.
+
+```{r}
+bootstrap_distribution <- promotions |>  
+  specify(formula = promoted ~ sex) |>  
+  generate(reps = 1000, 
+           type = "bootstrap") |>  
+  calculate(stat = "diff in means", 
+            order = c("male", "female"))
+
+visualize(bootstrap_distribution)
+```
+
+Let's get the intervals. First numerically:
+
+```{r}
+percentile_ci <- bootstrap_distribution |>  
+  get_confidence_interval(level = 0.95, type = "percentile")
+percentile_ci
+```
+
+Then visually:
+
+```{r}
+visualize(bootstrap_distribution) + 
+  shade_confidence_interval(endpoints = percentile_ci)
+```
+
+If the 95% confidence interval for the *difference* in male-female promotion rates doesn't include zero, then that is the same decision rule as rejecting the null hypothesis is the p-value is less than .05.
+
+# Interpretation
+
+-   if the p-value is less than $\alpha$ we reject the null hypothesis in favor of the alternative hypothesis
+-   if the p-value is greater than or equal to $\alpha$, we "fail to reject" the null hypothesis
+
+(Analogy to criminal justice system.)
+
+# Movies case study
+
+This is another example of a research question:
+
+"Are men promoted at different rates than women?"
+
+"Are action moves rated differently than romance movies?"
+
+```{r}
+movies_sample |> 
+  glimpse()
+```
+
+Basic difference:
+
+```{r}
+ggplot(data = movies_sample, aes(x = genre, y = rating)) +
+  geom_boxplot() +
+  labs(y = "IMDb rating")
+```
+
+Are these differences big enough for us to assert that there are real differences in the full population of films?
+
+Same basic idea. Here's the null.
+
+```{r}
+set.seed(12345)
+
+null_distribution <- movies_sample |> 
+  specify(formula = rating ~ genre) |> 
+  hypothesise(null = "independence") |> 
+  generate(reps = 1000,
+           type = "permute") |> 
+  calculate(stat = "diff in means",
+            order = c("Action", "Romance"))
+
+head(null_distribution)
+```
+
+Here's the observed difference.
+
+```{r}
+observed_diff <- movies_sample |> 
+  specify(formula = rating ~ genre) |> 
+  calculate(stat = "diff in means",
+            order = c("Action", "Romance"))
+
+observed_diff
+```
+
+Now check out the observed difference compared to what we'd expect under the "null world".
+
+Visual:
+
+```{r}
+visualize(null_distribution, 
+          bins = 10) + 
+  shade_p_value(obs_stat = observed_diff, 
+                direction = "both")
+```
+
+Numeric:
+
+```{r}
+null_distribution |> 
+  get_p_value(obs_stat = observed_diff, 
+              direction = "both")
+```
