@@ -1,0 +1,205 @@
+---
+title: "MD 10 Demo"
+subtitle: "Inference for Regression"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(infer)
+library(moderndive)
+library(patchwork)
+library(here)
+theme_set(theme_minimal())
+```
+
+
+We're going to look at the bikes example we did before. But now with uncertainty!
+
+```{r}
+d <- bayesrules::bikes
+glimpse(d)
+```
+
+Remember this?
+
+```{r}
+ggplot(d,
+       aes(x = temp_actual,
+           y = rides)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+```
+
+Where does that gray ribbon come from? It is a confidence interval! Let's take a look.
+
+```{r}
+m1 <- lm(rides ~ temp_actual,
+         data = d)
+get_regression_table(m1)
+```
+
+A few things to note:
+
+- `intercept` is the intercept (obviously!)
+- `temp_actual` is the slope ($\hat{\beta}$) (we're going to focus on the slope)
+- the **standard error** is the *standard deviation* of the theoretical sampling distribution (that is, not based on simulations like what we've done before)
+- `lower_ci` and `upper_ci` stand for the lower and upper bounds of the 95% confidence interval
+  + the lower bound is $\hat{\beta} - 1.96 \times \text{standard error of } \hat{\beta}$
+  + the upper bound is $\hat{\beta} + 1.96 \times \text{standard error of } \hat{\beta}$
+  
+Don't worry about the other columns just yet.
+  
+How can we get confidence intervals with our simulation approach?
+
+```{r}
+set.seed(1234)
+
+boot_dist <- d |> 
+  specify(formula = rides ~ temp_actual) |> 
+  generate(reps = 1000, type = "bootstrap") |> 
+  calculate(stat = "slope")
+
+boot_dist
+
+visualize(boot_dist)
+```
+
+We can use this to get the confidence interval like before.
+
+#### numeric
+
+```{r}
+ci <- boot_dist |> 
+  get_ci(level = .95, type = "percentile")
+
+ci
+```
+
+#### visual
+
+```{r}
+visualise(boot_dist) +
+  shade_ci(ci)
+```
+
+How does this compare to what we got from `lm()`?
+
+```{r}
+get_regression_table(m1)
+```
+
+Pretty close but not the same! We won't worry too much about why these are different but you should be aware of the fact that they will generally be close but different.
+
+
+# Hypothesis testing
+
+Again, it's the same idea as the other day. We can do hypothesis testing a couple of different ways. 
+
+First, what would the null hypothesis be in this case?
+
+(The null is that the slope is ZERO. This might not be that interesting, but it is the conventional null hypothesis.)
+
+#### Confidence interval
+
+The "test" of the null is whether my 95% confidence interval includes zero. As we saw above, it does not!
+
+#### p-value
+
+```{r}
+set.seed(1234)
+
+# get observe slope
+obs_slope <- d |> 
+  specify(formula = rides ~ temp_actual) |> 
+  calculate(stat = "slope")
+
+obs_slope
+
+# compare to null distribution
+null_dist <- d |> 
+  specify(formula = rides ~ temp_actual) |>
+  hypothesize(null = "independence") |> 
+  generate(reps = 1000) |> 
+  calculate(stat = "slope")
+
+boot_dist
+
+visualize(null_dist) +
+  shade_p_value(obs_stat = obs_slope,
+                direction = "both")
+```
+
+Remember this?
+
+```{r}
+get_regression_table(m1)
+```
+
+This is why the p-value shows up as 0 in the regression table. Because, for all intents and purposes, a result as extreme as 89.2 would never happen by chance! The theoretical p-value here isn't literally zero, but is about $2 \times 10^{-16}$.
+
+# Some pitfalls to look out for
+
+The book tells you to look out for a few things when you are doing inference on regression slopes. The checks you want to do are:
+
+1. **L**inearity of the relationships
+2. **I**ndependence of residuals
+3. **N**ormality of the residuals
+4. **E**quality of the variance of the residuals
+
+Only one of these is really important, which is **linearity of the relationships.** If you use a regression in your final paper, be sure to check this!
+
+Consider the following:
+
+```{r}
+d2 <- gapminder::gapminder
+
+ggplot(d2,
+       aes(y = lifeExp,
+           x = gdpPercap)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+m2 <- lm(lifeExp ~ gdpPercap,
+         data = d2)
+
+m2_points <- get_regression_points(m2)
+```
+
+```{r}
+ggplot(m2_points,
+       aes(y = residual,
+           x = gdpPercap)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE)
+```
+
+In a residual plot, the residuals should be scattered randomly around the line. If there is a pattern, the reliationship is probably not linear.
+
+Compare this:
+
+```{r}
+m1_points <- get_regression_points(m1)
+
+ggplot(m1_points,
+       aes(y = residual,
+           x = temp_actual)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE)
+```
+
+
+
+
